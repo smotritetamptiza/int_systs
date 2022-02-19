@@ -42,7 +42,7 @@ class Agent {
     this.run = false;
     this.act = null;
     this.momentum = velocity * 360 / 10;
-    this.rl = readline.createInterface({
+    /*this.rl = readline.createInterface({
       input: process.stdin,
       output: process.stdout
     });
@@ -54,7 +54,7 @@ class Agent {
         if ("s" == input) this.act = {n: "kick", v: 100}
 
       }
-    });
+    });*/
   }
   msgGot(msg) {
     let data = msg.toString('utf8');
@@ -107,8 +107,32 @@ class Agent {
           }
         }
         if (flags.length >= 3) {
-          let coordinates = this.threeFlagCoordinates(flags[0], flags[1], flags[2]);
-          console.log(coordinates);
+          let coordinates;
+          for (let i = 2; i < flags.length; i++) {
+            if (flags[0].x == flags[1].x) {
+              if (flags[i].x != flags[0].x) {
+                coordinates = this.threeFlagCoordinates(flags[0], flags[1], flags[i]);
+                break;
+              }
+            } else if (flags[0].y == flags[1].y) {
+              if (flags[i].y != flags[0].y) {
+                coordinates = this.threeFlagCoordinates(flags[0], flags[1], flags[i]);
+                break;
+              }
+            } else {
+              let alpha = (flags[0].y - flags[1].y) / (flags[0].x - flags[1].x);
+              let beta = flags[0].y - alpha * flags[0].x;
+              if (flags[i].y != alpha * flags[i].x + beta) {
+                coordinates = this.threeFlagCoordinates(flags[0], flags[1], flags[i]);
+                break;
+              }
+            }
+          }
+          if (!coordinates) {
+            console.log("could not calculate coordinates");
+          } else {
+            console.log(coordinates);
+          }
         }
       }
     }
@@ -131,10 +155,12 @@ class Agent {
     let y = 0;
     if (f1.x == f2.x) {
       y = (f2.y**2 - f1.y**2 + f1.d**2 - f2.d**2) / 2 /(f2.y - f1.y);
-      x = f1.x - Math.sqrt(f1.d**2 - (y - f1.y)**2); // +- проверка выхода за пределы поля?
+      x = (f1.d**2 - f3.d**2 - f1.x**2 + f3.x**2 -f1.y**2 +f3.y**2 +
+        2*y*(f1.y - f3.y)) / 2 / (f3.x - f1.x);
     } else if (f1.y == f2.y){
       x = (f2.x**2 - f1.x**2 + f1.d**2 - f2.d**2) / 2 /(f2.x - f1.x);
-      y = f1.y - Math.sqrt(f1.d**2 - (x - f1.x)**2); // +-
+      y = (f1.d**2 - f3.d**2 - f1.x**2 + f3.x**2 -f1.y**2 +f3.y**2 +
+        2*x*(f1.x - f3.x)) / 2 / (f3.y - f1.y);
     } else {
       let alpha1 = (f1.y - f2.y) / (f2.x - f1.x);
       let beta1 = (f2.y**2 - f1.y**2 + f2.x**2 - f1.x**2 + f1.d**2 - f2.d**2) / 2 / (f2.x - f1.x);
