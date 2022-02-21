@@ -25,8 +25,7 @@ rl.question("Enter team name: ", function (answer) {
       rl.question("Do you want to place a rival player? (y/n) ", function (answer) {
         if (answer.toLowerCase() == "y") {
           rival = true;
-          rl.question("Enter initial coordinates of the rival player \
-          (X must be negative, Y will be mirrored): ", function (answer) {
+          rl.question("Enter initial coordinates of the rival player (X must be negative, Y will be mirrored): ", function (answer) {
             rivalCoordinates = answer || "-15 0";
             rl.close();
           })

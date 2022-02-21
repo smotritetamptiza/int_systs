@@ -38,7 +38,7 @@ class Agent {
     this.position = 'l';
     this.run = false;
     this.act = null;
-    this.momentum = velocity * 360 / 10;
+    this.moment = velocity * 360 / 10;
     this.locate = locate;
     this.coordinates;
     /*this.rl = readline.createInterface({
@@ -143,7 +143,6 @@ class Agent {
             console.log("My coordinates: " + JSON.stringify(this.coordinates));
 
             if (player) {
-              console.log(player);
               for (let i = 1; i < flags.length; i++) {
                 if (flags[0].x == this.coordinates.x) {
                   if (flags[i].x != flags[0].x) {
@@ -177,7 +176,7 @@ class Agent {
   } //message analysis
   sendCmd() {
     if (this.run) {
-      this.act = { n: "turn", v: this.momentum };
+      this.act = { n: "turn", v: this.moment };
       if (this.act) {
         if (this.act.n == "kick") {
           this.socketSend(this.act.n, this.act.v + "0");
@@ -191,14 +190,34 @@ class Agent {
   threeFlagCoordinates(f1, f2, f3) {
     let x = 0;
     let y = 0;
-    if (f1.x == f2.x) {
-      y = (f2.y**2 - f1.y**2 + f1.d**2 - f2.d**2) / 2 /(f2.y - f1.y);
-      x = (f1.d**2 - f3.d**2 - f1.x**2 + f3.x**2 -f1.y**2 +f3.y**2 +
-        2*y*(f1.y - f3.y)) / 2 / (f3.x - f1.x);
-    } else if (f1.y == f2.y){
-      x = (f2.x**2 - f1.x**2 + f1.d**2 - f2.d**2) / 2 /(f2.x - f1.x);
-      y = (f1.d**2 - f3.d**2 - f1.x**2 + f3.x**2 -f1.y**2 +f3.y**2 +
-        2*x*(f1.x - f3.x)) / 2 / (f3.y - f1.y);
+    if (f1.x == f2.x || f1.x == f3.x) {
+      let g1, g2, g3;
+      if (f1.x == f2.x) {
+        g1 = f1;
+        g2 = f2;
+        g3 = f3;
+      } else {
+        g1 = f1;
+        g2 = f3;
+        g3 = f2;
+      }
+      y = (g2.y**2 - g1.y**2 + g1.d**2 - g2.d**2) / 2 /(g2.y - g1.y);
+      x = (g1.d**2 - g3.d**2 - g1.x**2 + g3.x**2 -g1.y**2 +g3.y**2 +
+        2*y*(g1.y - g3.y)) / 2 / (g3.x - g1.x);
+    } else if (f1.y == f2.y || f1.y == f3.y) {
+      let g1, g2, g3;
+      if (f1.y == f2.y) {
+        g1 = f1;
+        g2 = f2;
+        g3 = f3;
+      } else {
+        g1 = f1;
+        g2 = f3;
+        g3 = f2;
+      }
+      x = (g2.x**2 - g1.x**2 + g1.d**2 - g2.d**2) / 2 /(g2.x - g1.x);
+      y = (g1.d**2 - g3.d**2 - g1.x**2 + g3.x**2 -g1.y**2 +g3.y**2 +
+        2*x*(g1.x - g3.x)) / 2 / (g3.y - g1.y);
     } else {
       let alpha1 = (f1.y - f2.y) / (f2.x - f1.x);
       let beta1 = (f2.y**2 - f1.y**2 + f2.x**2 - f1.x**2 + f1.d**2 - f2.d**2) / 2 / (f2.x - f1.x);
@@ -210,7 +229,7 @@ class Agent {
     return { x: x, y: y };
   }
   calculateDistance(f, a) {
-    return Math.abs(Math.sqrt(f.d**2 + a.d**2 - 2*f.d*a.d*Math.cos(Math.abs(f.a - a.a) / 180 * Math.PI)));
+    return Math.sqrt(f.d**2 + a.d**2 - 2*f.d*a.d*Math.cos(Math.abs(f.a - a.a) / 180 * Math.PI));
   }
   locateObject(f1, f2, object) {
     let da1 = this.calculateDistance(f1, object);
