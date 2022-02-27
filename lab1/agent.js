@@ -117,23 +117,9 @@ class Agent {
           }
           if (flags.length >= 3) {
             for (let i = 2; i < flags.length; i++) {
-              if (flags[0].x == flags[1].x) {
-                if (flags[i].x != flags[0].x) {
-                  this.coordinates = this.threeFlagCoordinates(flags[0], flags[1], flags[i]);
-                  break;
-                }
-              } else if (flags[0].y == flags[1].y) {
-                if (flags[i].y != flags[0].y) {
-                  this.coordinates = this.threeFlagCoordinates(flags[0], flags[1], flags[i]);
-                  break;
-                }
-              } else {
-                let alpha = (flags[0].y - flags[1].y) / (flags[0].x - flags[1].x);
-                let beta = flags[0].y - alpha * flags[0].x;
-                if (flags[i].y != alpha * flags[i].x + beta) {
-                  this.coordinates = this.threeFlagCoordinates(flags[0], flags[1], flags[i]);
-                  break;
-                }
+              if (!this.areOnTheLine(flags[0], flags[1], flags[i])) {
+                this.coordinates = this.threeFlagCoordinates(flags[0], flags[1], flags[i]);
+                break;
               }
             }
             if (!this.coordinates) {
@@ -144,23 +130,9 @@ class Agent {
 
             if (player) {
               for (let i = 1; i < flags.length; i++) {
-                if (flags[0].x == this.coordinates.x) {
-                  if (flags[i].x != flags[0].x) {
-                    playerCoordinates = this.locateObject(flags[0], flags[i], player);
-                    break;
-                  }
-                } else if (flags[0].y == this.coordinates.y) {
-                  if (flags[i].y != flags[0].y) {
-                    playerCoordinates = this.locateObject(flags[0], flags[i], player);
-                    break;
-                  }
-                } else {
-                  let alpha = (flags[0].y - this.coordinates.y) / (flags[0].x - this.coordinates.x);
-                  let beta = flags[0].y - alpha * flags[0].x;
-                  if (flags[i].y != alpha * flags[i].x + beta) {
-                    playerCoordinates = this.locateObject(flags[0], flags[i], player);
-                    break;
-                  }
+                if (!this.areOnTheLine(flags[0], this.coordinates, flags[i])) {
+                  playerCoordinates = this.locateObject(flags[0], flags[i], player);
+                  break;
                 }
               }
               if (!playerCoordinates) {
@@ -187,6 +159,20 @@ class Agent {
       this.act = null;
     }
   }
+  areOnTheLine(p1, p2, p3) {
+    if (p1.x == p2.x && p1.x == p3.x) {
+      return true;
+    }
+    if (p1.y == p2.y && p1.y == p3.y) {
+      return true;
+    }
+    let alpha = (p1.y - p2.y) / (p1.x - p2.x);
+    let beta = p1.y - alpha * p1.x;
+    if (p3.y == alpha * p3.x + beta) {
+      return true;
+    }
+    return false;
+  }
   threeFlagCoordinates(f1, f2, f3) {
     let x = 0;
     let y = 0;
@@ -204,20 +190,6 @@ class Agent {
       y = (g2.y**2 - g1.y**2 + g1.d**2 - g2.d**2) / 2 /(g2.y - g1.y);
       x = (g1.d**2 - g3.d**2 - g1.x**2 + g3.x**2 -g1.y**2 +g3.y**2 +
         2*y*(g1.y - g3.y)) / 2 / (g3.x - g1.x);
-    } else if (f1.y == f2.y || f1.y == f3.y) {
-      let g1, g2, g3;
-      if (f1.y == f2.y) {
-        g1 = f1;
-        g2 = f2;
-        g3 = f3;
-      } else {
-        g1 = f1;
-        g2 = f3;
-        g3 = f2;
-      }
-      x = (g2.x**2 - g1.x**2 + g1.d**2 - g2.d**2) / 2 /(g2.x - g1.x);
-      y = (g1.d**2 - g3.d**2 - g1.x**2 + g3.x**2 -g1.y**2 +g3.y**2 +
-        2*x*(g1.x - g3.x)) / 2 / (g3.y - g1.y);
     } else {
       let alpha1 = (f1.y - f2.y) / (f2.x - f1.x);
       let beta1 = (f2.y**2 - f1.y**2 + f2.x**2 - f1.x**2 + f1.d**2 - f2.d**2) / 2 / (f2.x - f1.x);
