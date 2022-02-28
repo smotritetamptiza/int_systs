@@ -198,7 +198,7 @@ class Agent {
       y = (beta1 - beta2) / (alpha2 - alpha1);
       x = alpha1 * y + beta1;
     }
-    return { x: x, y: y };
+    return { x: x.toFixed(2), y: y.toFixed(2) };
   }
   calculateDistance(f, a) {
     return Math.sqrt(f.d**2 + a.d**2 - 2*f.d*a.d*Math.cos(Math.abs(f.a - a.a) / 180 * Math.PI));
