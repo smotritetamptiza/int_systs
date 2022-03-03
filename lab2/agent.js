@@ -34,28 +34,23 @@ const Flags = {
 };
 
 class Agent {
-  constructor(velocity, locate) {
+  constructor(locate) {
     this.position = 'l';
     this.run = false;
     this.act = null;
-    this.moment = velocity * 360 / 10;
     this.locate = locate;
     this.coordinates;
-	this.dashvector;
-	this.lastact;
-    /*this.rl = readline.createInterface({
-      input: process.stdin,
-      output: process.stdout
-    });
-    this.rl.on('line', (input) => {
-      if (this.run) {
-        if ("w" == input) this.act = {n: "dash", v: 100}
-        if ("d" == input) this.act = {n: "turn", v: 20}
-        if ("a" == input) this.act = {n: "turn", v: -20}
-        if ("s" == input) this.act = {n: "kick", v: 100}
 
-      }
-    });*/
+    this.controller = {
+      actions: [
+        {act: "flag", fl: "fprt"},
+        {act: "flag", fl: "ftl40"},
+        {act: "flag", fl: "fc"},
+//        {act: "kick", fl: "b", goal: "gr"},
+      ],
+      currentAction: 0,
+      state: 0
+    };
   }
   msgGot(msg) {
     let data = msg.toString('utf8');
@@ -91,88 +86,82 @@ class Agent {
                  }
         */
         if (this.locate) {
+          let coordinates = null;
           let flags = [];
-          let player;
-          let playerCoordinates;
+          let foundFlag = false;
           for (let res of p) {
-            if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && res.cmd.p[0] == "f") {
+            if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && (res.cmd.p[0] == "f" || res.cmd.p[0] == "g")) {
               let f_name = res.cmd.p.join('');
               try {
                 let f = {
+                  n: f_name,
                   x: Flags[f_name].x,
                   y: Flags[f_name].y,
                   d: res.p[0],
                   a: res.p[1]
                 };
                 flags.push(f);
+                if (this.run) {
+                  if (this.controller.state === 0 && this.controller.actions[this.controller.currentAction].act == "flag" &&
+                  this.controller.actions[this.controller.currentAction].fl == f_name) {
+                    foundFlag = true;
+                    if (f.a != 0) {
+                      this.act = {n: "turn", v: f.a};
+                    }
+                    this.controller.state = 1;
+                  } else if (this.controller.state === 1 && this.controller.actions[this.controller.currentAction].act == "flag" &&
+                  this.controller.actions[this.controller.currentAction].fl == f_name) {
+                    console.log(f.d);
+                    if (f.d >= 3) {
+                      // если флаг - ворота, он не может подойти ближе, чем на 7
+                      this.act = {n: "dash", v: 100};
+                    } else {
+                      if (this.controller.currentAction === (this.controller.actions.length - 1)) {
+                        this.controller.currentAction = 0;
+                      } else {
+                        this.controller.currentAction++;
+                      }
+                      this.controller.state = 0; // добежали -> следующее действие
+                    }
+                  }
+                }
               } catch (e) {
                 console.log(f_name);
                 console.log(e);
               }
             }
-            else if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && res.cmd.p[0] == "p") {
+            /*else if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && res.cmd.p[0] == "p") {
               player = {
                 d: res.p[0],
                 a: res.p[1]
               };
-            }
+            }*/
+          }
+          if (this.run && this.controller.state === 0 && !this.foundFlag) {
+            console.log(JSON.stringify(flags));
+            this.act = {n: "turn", v: 30};
           }
           if (flags.length >= 3) {
             for (let i = 2; i < flags.length; i++) {
               if (!this.areOnTheLine(flags[0], flags[1], flags[i])) {
-				if(this.coordinates)
-						this.vector = { x: this.coordinates.x, y: this.coordinates.y };
-				else this.vector = { x: 0, y: 0 };
-                this.coordinates = this.threeFlagCoordinates(flags[0], flags[1], flags[i]);
-				if(this.coordinates){  
-					this.vector = { x: (this.coordinates.x - this.vector.x).toFixed(2), y: (this.coordinates.y - this.vector.y).toFixed(2) };
-				  	//console.log("Vector: " + JSON.stringify(this.vector));
-				}
+                coordinates = this.threeFlagCoordinates(flags[0], flags[1], flags[i]);
                 break;
               }
             }
-            if (!this.coordinates) {
+            if (!coordinates || !coordinates.x || !coordinates.y) {
               console.log("could not calculate coordinates");
               return;
+            } else {
+              this.coordinates = coordinates;
             }
-            console.log("My coordinates: " + JSON.stringify(this.coordinates));
+          }
 
-            if (player) {
-              for (let i = 1; i < flags.length; i++) {
-                if (!this.areOnTheLine(flags[0], this.coordinates, flags[i])) {
-                  playerCoordinates = this.locateObject(flags[0], flags[i], player);
-                  break;
-                }
-              }
-              if (!playerCoordinates) {
-                console.log("could not calculate other player's coordinates");
-              } else {
-                console.log("Rival's coordinates: " + JSON.stringify(playerCoordinates));
-              }
-            }
-          }else{
-			  if (!this.coordinates) {
-              console.log("could not calculate coordinates");
-              return;
-            }
-			  if(this.lastact.n == "dash"){
-				this.coordinates = { x: (Number(this.coordinates.x) + Number(this.vector.x)).toFixed(2), y: (Number(this.coordinates.y) + Number(this.vector.y)).toFixed(2)};
-			  	console.log("My coordinates: " + JSON.stringify(this.coordinates));	
-			  }
-			  else{
-				console.log("My coordinates: " + JSON.stringify(this.coordinates));			  
-			  }
-			  
-		  	
-		  
-		  }
         }
       }
     }
   } //message analysis
   sendCmd() {
     if (this.run) {
-      this.act = { n: "turn", v: this.moment };
       if (this.act) {
         if (this.act.n == "kick") {
           this.socketSend(this.act.n, this.act.v + "0");
@@ -180,9 +169,7 @@ class Agent {
           this.socketSend(this.act.n, this.act.v);
         }
       }
-		this.lastact = { n: this.act.n, v: this.act.v };
       this.act = null;
-		
     }
   }
   areOnTheLine(p1, p2, p3) {
