@@ -86,7 +86,6 @@ class Agent {
                  }
         */
         if (this.locate) {
-          let coordinates = null;
           let flags = [];
           let foundFlag = false;
           for (let res of p) {
@@ -112,8 +111,9 @@ class Agent {
                   } else if (this.controller.state === 1 && this.controller.actions[this.controller.currentAction].act == "flag" &&
                   this.controller.actions[this.controller.currentAction].fl == f_name) {
                     console.log(f.d);
-                    if (f.d >= 3) {
-                      // если флаг - ворота, он не может подойти ближе, чем на 7
+                    if (f.d >= 10) {
+                      this.act = {n: "dash", v: 10};
+                    } else if (f.d >= 3) {
                       this.act = {n: "dash", v: 100};
                     } else {
                       if (this.controller.currentAction === (this.controller.actions.length - 1)) {
@@ -139,23 +139,27 @@ class Agent {
           }
           if (this.run && this.controller.state === 0 && !this.foundFlag) {
             console.log(JSON.stringify(flags));
-            this.act = {n: "turn", v: 30};
+            this.act = {n: "turn", v: 45};
           }
           if (flags.length >= 3) {
             for (let i = 2; i < flags.length; i++) {
               if (!this.areOnTheLine(flags[0], flags[1], flags[i])) {
-                coordinates = this.threeFlagCoordinates(flags[0], flags[1], flags[i]);
+                if(this.coordinates) this.vector = { x: this.coordinates.x, y: this.coordinates.y };
+                else this.vector = { x: 0, y: 0 };
+                this.coordinates = this.threeFlagCoordinates(flags[0], flags[1], flags[i]);
+                if(this.coordinates) {
+                  this.vector = { x: (this.coordinates.x - this.vector.x).toFixed(2), y: (this.coordinates.y - this.vector.y).toFixed(2) };
+                }
                 break;
               }
             }
-            if (!coordinates || !coordinates.x || !coordinates.y) {
-              console.log("could not calculate coordinates");
-              return;
-            } else {
-              this.coordinates = coordinates;
-            }
           }
-
+          else if (this.lastact.n == "dash") {
+            this.coordinates = {
+              x: (Number(this.coordinates.x) + Number(this.vector.x)).toFixed(2),
+              y: (Number(this.coordinates.y) + Number(this.vector.y)).toFixed(2)
+            };
+          }
         }
       }
     }
@@ -169,6 +173,7 @@ class Agent {
           this.socketSend(this.act.n, this.act.v);
         }
       }
+      this.lastact = { n: this.act.n, v: this.act.v };
       this.act = null;
     }
   }
