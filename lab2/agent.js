@@ -40,16 +40,17 @@ class Agent {
     this.act = null;
     this.locate = locate;
     this.coordinates;
+    this.vector;
+    this.lastact;
 
     this.controller = {
       actions: [
         {act: "flag", fl: "fprt"},
-        {act: "flag", fl: "ftl40"},
+        {act: "flag", fl: "fplb"},
         {act: "flag", fl: "fc"},
 //        {act: "kick", fl: "b", goal: "gr"},
       ],
-      currentAction: 0,
-      state: 0
+      currentAction: 0
     };
   }
   msgGot(msg) {
@@ -101,27 +102,26 @@ class Agent {
                 };
                 flags.push(f);
                 if (this.run) {
-                  if (this.controller.state === 0 && this.controller.actions[this.controller.currentAction].act == "flag" &&
+                  if (this.controller.actions[this.controller.currentAction].act == "flag" &&
                   this.controller.actions[this.controller.currentAction].fl == f_name) {
                     foundFlag = true;
                     if (f.a != 0) {
                       this.act = {n: "turn", v: f.a};
-                    }
-                    this.controller.state = 1;
-                  } else if (this.controller.state === 1 && this.controller.actions[this.controller.currentAction].act == "flag" &&
-                  this.controller.actions[this.controller.currentAction].fl == f_name) {
-                    console.log(f.d);
-                    if (f.d >= 10) {
-                      this.act = {n: "dash", v: 10};
-                    } else if (f.d >= 3) {
-                      this.act = {n: "dash", v: 100};
                     } else {
-                      if (this.controller.currentAction === (this.controller.actions.length - 1)) {
-                        this.controller.currentAction = 0;
+                      console.log(f.d);
+                      if (f.d >= 10) {
+                        this.act = {n: "dash", v: 100};
+                      } else if (f.d >= 3) {
+                        this.act = {n: "dash", v: 30};
                       } else {
-                        this.controller.currentAction++;
+                        if (this.controller.currentAction === (this.controller.actions.length - 1)) {
+                          console.log("Current action: " + this.controller.currentAction);
+                          console.log("Total actions: " + this.controller.actions.length);
+                          this.controller.currentAction = 0;
+                        } else {
+                          this.controller.currentAction++;
+                        }
                       }
-                      this.controller.state = 0; // добежали -> следующее действие
                     }
                   }
                 }
@@ -137,7 +137,9 @@ class Agent {
               };
             }*/
           }
-          if (this.run && this.controller.state === 0 && !this.foundFlag) {
+          if (this.run &&
+            this.controller.actions[this.controller.currentAction].act == "flag"
+            && !foundFlag) {
             console.log(JSON.stringify(flags));
             this.act = {n: "turn", v: 45};
           }
@@ -172,8 +174,8 @@ class Agent {
         } else {
           this.socketSend(this.act.n, this.act.v);
         }
+        this.lastact = { n: this.act.n, v: this.act.v };
       }
-      this.lastact = { n: this.act.n, v: this.act.v };
       this.act = null;
     }
   }
