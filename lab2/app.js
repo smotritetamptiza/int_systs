@@ -8,8 +8,8 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-function initPlayer(teamName, coordinates, printLocation) {
-  let agent = new Agent(printLocation);
+function initPlayer(teamName, coordinates) {
+  let agent = new Agent();
   require('./socket')(agent, teamName, VERSION); // socket configuration
   setTimeout(function () {
     agent.socketSend('move', coordinates); // placing player on the field
@@ -26,5 +26,5 @@ rl.question("Enter team name: ", function (answer) {
 
 
 rl.on('close', async () => {
-  await initPlayer(teamName, myCoordinates, true);
+  await initPlayer(teamName, myCoordinates);
 })
