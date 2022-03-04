@@ -9,7 +9,7 @@ const rl = readline.createInterface({
 });
 
 function initPlayer(teamName, coordinates) {
-  let agent = new Agent();
+  let agent = new Agent(coordinates);
   require('./socket')(agent, teamName, VERSION); // socket configuration
   setTimeout(function () {
     agent.socketSend('move', coordinates); // placing player on the field

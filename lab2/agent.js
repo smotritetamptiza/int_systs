@@ -34,7 +34,8 @@ const Flags = {
 };
 
 class Agent {
-  constructor() {
+  constructor(initialCoordinates) {
+    this.initialCoordinates = initialCoordinates;
     this.position = 'l';
     this.run = false;
     this.act = null;
@@ -48,6 +49,7 @@ class Agent {
         {act: "flag", fl: "gl"},
         {act: "flag", fl: "fct"},
         {act: "kick", fl: "b", goal: "gr"},
+        {act: "flag", fl: "fcb"},
       ],
       currentAction: 0
     };
@@ -91,7 +93,8 @@ class Agent {
             } else {
               this.controller.currentAction++;
             }
-          }, 3000);
+            this.socketSend('move', this.initialCoordinates);
+          }, 4900);
         }
       }
     }
@@ -152,8 +155,7 @@ class Agent {
   }
   performActions(p) {
     if (p && p.length > 0) {
-      let flag;
-      let goal;
+      let flag, goal;
       for (let res of p) {
         if (res.cmd && res.cmd && res.cmd.p.length > 0) {
           let f_name = res.cmd.p.join('');
@@ -173,7 +175,7 @@ class Agent {
         }
       }
       if (!flag) {
-        this.act = {n: "turn", v: 45};
+        this.act = {n: "turn", v: 90};
         return;
       }
       if (this.controller.actions[this.controller.currentAction].act == "flag") {
@@ -185,7 +187,7 @@ class Agent {
           if (flag.d >= 10) {
             this.act = {n: "dash", v: 100};
           } else if (flag.d >= 3) {
-            this.act = {n: "dash", v: 25};
+            this.act = {n: "dash", v: 30};
           } else {
             if (this.controller.currentAction === (this.controller.actions.length - 1)) {
               this.controller.currentAction = 0;
@@ -201,18 +203,20 @@ class Agent {
           this.act = {n: "turn", v: flag.a};
         } else {
           console.log(flag.d);
-          if (flag.d >= 10) {
+          if (flag.d >= 5) {
             this.act = {n: "dash", v: 100};
-          } else if (flag.d >= 5) {
-            this.act = {n: "dash", v: 50};
           } else if (flag.d >= 0.5) {
-            this.act = {n: "dash", v: 25};
+            this.act = {n: "dash", v: 50};
           } else {
             if (!goal) {
-              this.act = {n: "kick", v: 10, a: 45};
+              this.act = {n: "kick", v: 10, a: 90};
               return;
             }
-            this.act = {n: "kick", v: 100, a: goal.a};
+            if (goal.d >= 40) {
+              this.act = {n: "kick", v: 20, a: goal.a};
+            } else {
+              this.act = {n: "kick", v: 100, a: goal.a};
+            }
           }
         }
       }
