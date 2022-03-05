@@ -45,11 +45,8 @@ class Agent {
 
     this.controller = {
       actions: [
-        {act: "flag", fl: "fprb"},
         {act: "flag", fl: "gl"},
-        {act: "flag", fl: "fct"},
         {act: "kick", fl: "b", goal: "gr"},
-        {act: "flag", fl: "fcb"},
       ],
       currentAction: 0
     };
@@ -213,7 +210,7 @@ class Agent {
               return;
             }
             if (goal.d >= 40) {
-              this.act = {n: "kick", v: 20, a: goal.a};
+              this.act = {n: "kick", v: 60, a: goal.a};
             } else {
               this.act = {n: "kick", v: 100, a: goal.a};
             }
