@@ -2,6 +2,7 @@ const Msg = require('./msg');
 const readline = require('readline');
 const managerDT = require('./managerDT');
 const spDT = require('./singlePlayerDT');
+const RoleDistributor = require('./roleDistributor');
 
 const Flags = {
   ftl50: {x: -50, y: -39}, ftl40: {x: -40, y: -39},
@@ -36,7 +37,8 @@ const Flags = {
 };
 
 class Agent {
-  constructor(initialCoordinates) {
+  constructor(teamName, initialCoordinates) {
+    this.teamName = teamName;
     this.initialCoordinates = initialCoordinates;
     this.position = 'l';
     this.run = false;
@@ -44,6 +46,8 @@ class Agent {
     this.coordinates;
     this.vector;
     this.lastact;
+    this.role = null;
+    this.DT = null;
   }
   msgGot(msg) {
     let data = msg.toString('utf8');
@@ -66,19 +70,35 @@ class Agent {
   initAgent(p) {
     if (p[0] == "r") this.position = "r";
     if (p[1]) this.id = p[1];
+    this.DT = new RoleDistributor(this.teamName, this.id, spDT.state.sequence[0].fl);
   }
   analyzeEnv(msg, cmd, p) {
     if (cmd == 'see') {
       this.locateSelf(p);
       if (this.run) {
-        managerDT.getAction(spDT, p);
-        this.act = spDT.state.command;
+        managerDT.getAction(this.DT, p);
+        this.act = this.DT.state.command;
       }
     }
     if (cmd == 'hear') {
       if (p && p.length >= 3) {
+        if (!this.role) {
+          // TO DO: изменить для трех
+          if (p[1] != "self" && p[2].endsWith(this.teamName)) {
+            if (this.DT.state.distance && this.DT.state.distance > Number(p[4])) {
+              this.role = "leading";
+              this.DT = spDT;
+            } else {
+              this.role = "following";
+              //this.DT = followingDT;
+            }
+          }
+        }
         if (this.run && p[2].startsWith("goal_" + this.position)) {
           setTimeout(() => {
+            if (spDT.state.sequence[spDT.state.next].act == "kick") {
+              spDT.state.next++;
+            }
             this.socketSend('move', this.initialCoordinates);
           }, 4900);
         }
@@ -203,5 +223,6 @@ class Agent {
     }
     return this.threeFlagCoordinates(flag1, flag2, flag3);
   }
+
 }
 module.exports = Agent;

@@ -2,14 +2,14 @@ const Agent = require('./agent'); //importing Agent
 const readline = require('readline');
 
 const VERSION = 7; // server version
-let teamName, myCoordinates;
+let teamName, coordinates1, coordinates2, coordinates3;
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
 });
 
 function initPlayer(teamName, coordinates) {
-  let agent = new Agent(coordinates);
+  let agent = new Agent(teamName, coordinates);
   require('./socket')(agent, teamName, VERSION); // socket configuration
   setTimeout(function () {
     agent.socketSend('move', coordinates); // placing player on the field
@@ -18,13 +18,37 @@ function initPlayer(teamName, coordinates) {
 
 rl.question("Enter team name: ", function (answer) {
   teamName = answer || "myTeam";
-  rl.question("Enter initial coordinates (X must be negative): ", function (answer) {
-    myCoordinates = answer || "-15 0";
-    rl.close();
+  rl.question("Enter initial coordinates of the first player (X must be negative): ", function (answer) {
+    coordinates1 = answer || "-15 0";
+    rl.question("Do you want to add a second player? (y/n) ", function (answer) {
+      if (answer.toLowerCase() == "y") {
+        rl.question("Enter initial coordinates of the second player (X must be negative): ", function (answer) {
+          coordinates2 = answer || "-15 0";
+          rl.question("Do you want to add a third player? (y/n) ", function (answer) {
+            if (answer.toLowerCase() == "y") {
+              rl.question("Enter initial coordinates of the third player (X must be negative): ", function (answer) {
+                coordinates3 = answer || "-15 0";
+                rl.close();
+              });
+            } else {
+              rl.close();
+            }
+          })
+        });
+      } else {
+        rl.close();
+      }
+    })
   })
 })
 
 
 rl.on('close', async () => {
-  await initPlayer(teamName, myCoordinates);
+  await initPlayer(teamName, coordinates1);
+  if (coordinates2) {
+    await initPlayer(teamName, coordinates2);
+  }
+  if (coordinates3) {
+    await initPlayer(teamName, coordinates3);
+  }
 })
