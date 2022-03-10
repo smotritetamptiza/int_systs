@@ -8,6 +8,9 @@ const DT = {
   },
   root: {
     exec(mgr, state) {
+      if (state.next == state.sequence.length) {
+        state.next = 0;
+      }
       state.action = state.sequence[state.next];
       state.command = null;
     },
@@ -42,7 +45,7 @@ const DT = {
     next: "goalVisible"
   },
   farGoal: {
-    condition: (mgr, state) => mgr.getAngle(state.action.fl) > 4,
+    condition: (mgr, state) => mgr.getAngle(state.action.fl) != 0,
     trueCond: "rotateToGoal",
     falseCond: "runToGoal"
   },

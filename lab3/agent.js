@@ -77,14 +77,8 @@ class Agent {
     }
     if (cmd == 'hear') {
       if (p && p.length >= 3) {
-        if (this.run && spDT.state.action.act == "kick"
-        && p[2].startsWith("goal_" + this.position)) {
+        if (this.run && p[2].startsWith("goal_" + this.position)) {
           setTimeout(() => {
-            if (spDT.state.next === (spDT.state.sequence.length - 1)) {
-              spDT.state.next = 0;
-            } else {
-              spDT.state.next++;
-            }
             this.socketSend('move', this.initialCoordinates);
           }, 4900);
         }
