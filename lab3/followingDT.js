@@ -1,7 +1,7 @@
 let DT = {
   state: {
     command: null,
-    leader: null
+    leader: null,
   },
   setLeader(leader) {
     this.state.leader = leader;
@@ -20,7 +20,7 @@ let DT = {
   farLeader: {
     condition: (mgr, state) => mgr.getDistance(state.leader) > 10,
     trueCond: "angleFar",
-    falseCond: "angleClose"
+    falseCond: "checkLeft"
   },
   angleFar: {
     condition: (mgr, state) => Math.abs(mgr.getAngle(state.leader)) > 5,
@@ -39,15 +39,32 @@ let DT = {
     },
     next: "sendCommand"
   },
-  angleClose: {
+  checkLeft: {
+    condition: (mgr, state) => mgr.getIsOnTheLeft(state.leader),
+    trueCond: "angleCloseLeft",
+    falseCond: "angleCloseRight"
+  },
+  angleCloseLeft: {
     condition: (mgr, state) => (mgr.getAngle(state.leader) > 40 ||
     mgr.getAngle(state.leader) < 25),
-    trueCond: "rotateSlightly",
+    trueCond: "rotateSlightlyLeft",
     falseCond: "closeLeader"
   },
-  rotateSlightly: {
+  rotateSlightlyLeft: {
     exec(mgr, state) {
       state.command = { n: "turn", v: mgr.getAngle(state.leader) - 30 };
+    },
+    next: "sendCommand"
+  },
+  angleCloseRight: {
+    condition: (mgr, state) => (mgr.getAngle(state.leader) < -40 ||
+    mgr.getAngle(state.leader) > -25),
+    trueCond: "rotateSlightlyRight",
+    falseCond: "closeLeader"
+  },
+  rotateSlightlyRight: {
+    exec(mgr, state) {
+      state.command = { n: "turn", v: mgr.getAngle(state.leader) + 30 };
     },
     next: "sendCommand"
   },
