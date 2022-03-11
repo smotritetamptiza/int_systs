@@ -90,8 +90,6 @@ class Agent {
               this.role = "leading";
               this.DT = spDT;
             } else {
-              console.log(`player ${this.id} is turning to face their leader`);
-              this.act = {n: "turn", v: p[1]};
               this.role = "following";
               this.DT = followingDT;
               this.DT.setLeader(`p"${this.teamName}"${p[3]}`);
@@ -100,7 +98,8 @@ class Agent {
         }
         if (this.run && p[2].startsWith("goal_" + this.position)) {
           setTimeout(() => {
-            if (spDT.state.sequence[spDT.state.next].act == "kick") {
+            if (spDT.state.sequence[spDT.state.next].act &&
+              spDT.state.sequence[spDT.state.next] == "kick") {
               spDT.state.next++;
             }
             this.socketSend('move', this.initialCoordinates);

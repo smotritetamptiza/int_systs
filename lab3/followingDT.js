@@ -10,35 +10,24 @@ let DT = {
     exec(mgr, state) {
         state.command = null;
     },
-    next: "closeLeader"
+    next: "leaderVisible"
   },
-  closeLeader: {
-    condition: (mgr, state) => (mgr.getDistance(state.leader) < 1 &&
-    Math.abs(mgr.getAngle(state.leader)) < 40),
-    trueCond: "rotate",
-    falseCond: "farLeader"
-  },
-  rotate: {
-    exec(mgr, state) {
-      /*let angle = 30;
-      if (mgr.getAngle(state.leader) < 0) {
-        angle = -30;
-      }*/
-      state.command = { n: "turn", v: "30" };
-    },
-    next: "sendCommand"
+  leaderVisible: {
+    condition: (mgr, state) => mgr.getVisible(state.leader),
+    trueCond: "farLeader",
+    falseCond: "seekLeader"
   },
   farLeader: {
     condition: (mgr, state) => mgr.getDistance(state.leader) > 10,
-    trueCond: "checkAngleFar",
-    falseCond: "checkAngleClose"
+    trueCond: "angleFar",
+    falseCond: "angleClose"
   },
-  checkAngleFar: {
+  angleFar: {
     condition: (mgr, state) => Math.abs(mgr.getAngle(state.leader)) > 5,
-    trueCond: "rotateToLeader",
+    trueCond: "rotateFar",
     falseCond: "runFast"
   },
-  rotateToLeader: {
+  rotateFar: {
     exec(mgr, state) {
       state.command = { n: "turn", v: mgr.getAngle(state.leader) };
     },
@@ -46,32 +35,44 @@ let DT = {
   },
   runFast: {
     exec(mgr, state) {
-      state.command = { n: "dash", v: "80" };
+      state.command = { n: "dash", v: "100" };
     },
     next: "sendCommand"
   },
-  checkAngleClose: {
+  angleClose: {
     condition: (mgr, state) => (Math.abs(mgr.getAngle(state.leader)) > 40 ||
-    Math.abs(mgr.getAngle(state.leader)) < 25),
-    trueCond: "rotateALittle",
-    falseCond: "leaderRelativelyClose"
+     Math.abs(mgr.getAngle(state.leader)) < 25),
+    trueCond: "rotateSlightly",
+    falseCond: "closeLeader"
   },
-  rotateALittle: {
+  rotateSlightly: {
     exec(mgr, state) {
       let angle = mgr.getAngle(state.leader);
       if (angle > 0) {
-        angle -= 20;
+        angle -= 30;
       } else {
-        angle += 20;
+        angle += 30;
       }
       state.command = { n: "turn", v: angle };
     },
     next: "sendCommand"
   },
-  leaderRelativelyClose: {
+  closeLeader: {
     condition: (mgr, state) => mgr.getDistance(state.leader) < 7,
-    trueCond: "runVerySlow",
-    falseCond: "runSlow"
+    trueCond: "veryCloseLeader",
+    falseCond: "runSlower"
+  },
+  veryCloseLeader: {
+    condition: (mgr, state) => (mgr.getDistance(state.leader) < 1 &&
+    Math.abs(mgr.getAngle(state.leader)) < 40),
+    trueCond: "rotateClose",
+    falseCond: "runVerySlow"
+  },
+  rotateClose: {
+    exec(mgr, state) {
+      state.command = { n: "turn", v: "30" };
+    },
+    next: "sendCommand"
   },
   runVerySlow: {
     exec(mgr, state) {
@@ -79,9 +80,15 @@ let DT = {
     },
     next: "sendCommand"
   },
-  runSlow: {
+  runSlower: {
     exec(mgr, state) {
       state.command = { n: "dash", v: "40" };
+    },
+    next: "sendCommand"
+  },
+  seekLeader: {
+    exec(mgr, state) {
+      state.command = { n: "turn", v: "90" };
     },
     next: "sendCommand"
   },
