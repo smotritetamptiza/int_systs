@@ -76,26 +76,43 @@ class Agent {
   analyzeEnv(msg, cmd, p) {
     if (cmd == 'see') {
       this.locateSelf(p);
+		
       if (this.run) {
         managerDT.getAction(this.DT, p);
         this.act = this.DT.state.command;
-      }
-    }
-    if (cmd == 'hear') {
-      if (p && p.length >= 3) {
-        if (!this.role) {
-          // TO DO: изменить для трех
-          if (p[1] != "self" && p[2].endsWith(this.teamName)) {
-            if (this.DT.state.distance && this.DT.state.distance < Number(p[4])) {
-              this.role = "leading";
+	
+		  
+		/* 
+		if(!this.role){
+		if(this.DT.state.mindistance && !this.DT.state.goalcoords){ //условие что мы уже определили свое расстояние до цели(видим ее первый раз в дереве), но не определили ее координаты(делаем это в тот же такт)
+			//locate goal - get goal coords and push them into roleDistributor	
+		}	
+		if("видим тиммейта"){
+			считаем находим координаты тиммейта, считаем расстояние от него до цели, если меньше чем текущее минимальные - записываем и делаем лидером его
+			//locateobj(coords for teammate) + calcdist(from teammate to goal) -> dist from teammate to goal
+			//if dist < DT.mindist -> mindist = dist, DT.leaderid = idteammate
+		}
+		
+		} */ 
+		if (!this.role) {
+			if(this.DT.state.role != null){
+          	this.role = this.DT.state.role;
+            if (this.role == "leader") {
+				console.log("I'm leader " + this.id);
               this.DT = spDT;
             } else {
-              this.role = "following";
+			let leaderid = this.DT.state.leaderid;
+			console.log("I'm follower " + this.id);
               this.DT = followingDT;
-              this.DT.setLeader(`p"${this.teamName}"${p[3]}`);
+              this.DT.setLeader(`p"${this.teamName}"${leaderid}`);
             }
           }
         }
+		
+		}
+      }
+    if (cmd == 'hear') {
+      if (p && p.length >= 3) {
         if (this.run && p[2].startsWith("goal_" + this.position)) {
           setTimeout(() => {
             if (spDT.state.sequence[spDT.state.next].act &&

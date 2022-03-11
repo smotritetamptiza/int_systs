@@ -26,7 +26,7 @@ const Manager = {
       throw new Error("I can't see shit!");
     }
     for (let res of this.p) {
-      if (res.cmd && res.cmd && res.cmd.p.length > 0) {
+      if (res.cmd && res.cmd.p && res.cmd.p.length > 0) {
         let f_name = res.cmd.p.join('');
         if (f_name == obj) {
           return true;
@@ -40,7 +40,7 @@ const Manager = {
       throw new Error("I can't see shit!");
     }
     for (let res of this.p) {
-      if (res.cmd && res.cmd && res.cmd.p.length > 0) {
+      if (res.cmd && res.cmd.p && res.cmd.p.length > 0) {
         let f_name = res.cmd.p.join('');
         if (f_name == obj) {
           return res.p[0];
@@ -54,7 +54,7 @@ const Manager = {
       throw new Error("I can't see shit!");
     }
     for (let res of this.p) {
-      if (res.cmd && res.cmd && res.cmd.p.length > 0) {
+      if (res.cmd && res.cmd.p && res.cmd.p.length > 0) {
         let f_name = res.cmd.p.join('');
         if (f_name == obj) {
           return res.p[1];
