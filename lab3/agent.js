@@ -3,6 +3,7 @@ const readline = require('readline');
 const managerDT = require('./managerDT');
 const spDT = require('./singlePlayerDT');
 const RoleDistributor = require('./roleDistributor');
+let followingDT = require('./followingDT');
 
 const Flags = {
   ftl50: {x: -50, y: -39}, ftl40: {x: -40, y: -39},
@@ -85,12 +86,15 @@ class Agent {
         if (!this.role) {
           // TO DO: изменить для трех
           if (p[1] != "self" && p[2].endsWith(this.teamName)) {
-            if (this.DT.state.distance && this.DT.state.distance > Number(p[4])) {
+            if (this.DT.state.distance && this.DT.state.distance < Number(p[4])) {
               this.role = "leading";
               this.DT = spDT;
             } else {
+              console.log(`player ${this.id} is turning to face their leader`);
+              this.act = {n: "turn", v: p[1]};
               this.role = "following";
-              //this.DT = followingDT;
+              this.DT = followingDT;
+              this.DT.setLeader(`p"${this.teamName}"${p[3]}`);
             }
           }
         }
