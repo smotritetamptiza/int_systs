@@ -74,6 +74,7 @@ class Agent {
     if (p[0] == "r") this.position = "r";
     if (p[1]) this.id = p[1];
     if (this.goalie) {
+	  this.role = "goalie";
       this.DT = goalieDT;
       return;
     }
@@ -88,18 +89,29 @@ class Agent {
         this.act = this.DT.state.command;
 
 
-		/*
+		
 		if(!this.role){
-		if(this.DT.state.mindistance && !this.DT.state.goalcoords){ //условие что мы уже определили свое расстояние до цели(видим ее первый раз в дереве), но не определили ее координаты(делаем это в тот же такт)
-			//locate goal - get goal coords and push them into roleDistributor
-		}
-		if("видим тиммейта"){
-			считаем находим координаты тиммейта, считаем расстояние от него до цели, если меньше чем текущее минимальные - записываем и делаем лидером его
+		if(this.DT.state.mindistance && !this.DT.state.goalcoords){
+			
+			let goalcoords = this.locateGoal(p, this.DT.state.goal);
+			this.DT.state.goalcoords = goalcoords;
+		}	
+			
+
+		let min = this.closestPlayertoGoal(p, this.DT.state.team, this.DT.state.goalcoords)
+		if(min.mindist < this.DT.state.mindistance){
+			this.DT.state.mindistance = min.mindist;
+			this.DT.state.leaderid = min.id;
+		}	
+			
+		/*if("видим тиммейта"){
+			//chитаем находим координаты тиммейта, считаем расстояние от него до цели, если меньше чем текущее минимальные - записываем и делаем лидером его
 			//locateobj(coords for teammate) + calcdist(from teammate to goal) -> dist from teammate to goal
 			//if dist < DT.mindist -> mindist = dist, DT.leaderid = idteammate
-		}
+		}*/
+			
 
-		} */
+		} 
 		if (!this.role) {
 			if(this.DT.state.role != null){
           	this.role = this.DT.state.role;
@@ -185,6 +197,96 @@ class Agent {
       }
     }
   }
+  locateGoal(p, obj) {
+    if (p && p.length > 3) {
+      let flags = [];
+	  let goalCoordinates;
+	  let goal;
+      for (let res of p) {
+        if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && (res.cmd.p[0] == "f" || res.cmd.p[0] == "g")) {
+          let f_name = res.cmd.p.join('');
+          try {
+            let f = {
+              x: Flags[f_name].x,
+              y: Flags[f_name].y,
+              d: res.p[0],
+              a: res.p[1]
+            };
+            flags.push(f);
+          }
+			catch (e) {
+            console.log(f_name);
+            console.log(e);
+          }
+			
+        }
+		  if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && res.cmd.p.join('') == obj) {
+              goal = {
+                d: res.p[0],
+                a: res.p[1]
+              };
+            }
+      }
+      for (let i = 1; i < flags.length; i++) {
+        if (!this.areOnTheLine(flags[0], this.coordinates, flags[i])) {
+            goalCoordinates = this.locateObject(flags[0], flags[i], goal);
+            return goalCoordinates;
+            }
+       	}
+    }
+	  
+  }	  
+  closestPlayertoGoal(p, team, goalCoordinates) {
+    if (p && p.length > 3) {
+      let flags = [];
+	  let playerCoordinates;
+	  let distance;
+	  let mindist = 500;
+	  let playerid;
+	  let player;
+      for (let res of p) {
+        if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && (res.cmd.p[0] == "f" || res.cmd.p[0] == "g")) {
+          let f_name = res.cmd.p.join('');
+          try {
+            let f = {
+              x: Flags[f_name].x,
+              y: Flags[f_name].y,
+              d: res.p[0],
+              a: res.p[1]
+            };
+            flags.push(f);
+          }
+			catch (e) {
+            console.log(f_name);
+            console.log(e);
+          }
+			
+        }
+	  }
+		for (let res of p) {
+			if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && res.cmd.p[0] == "p" && res.cmd.p[1] && (team == (res.cmd.p[1]).slice(1, (res.cmd.p[1]).length -1)) && res.cmd.p[2]) {
+              player = {
+                d: res.p[0],
+                a: res.p[1]
+              };
+				for (let i = 1; i < flags.length; i++) {
+					if (!this.areOnTheLine(flags[0], this.coordinates, flags[i])) {
+						playerCoordinates = this.locateObject(flags[0], flags[i], player);
+						distance = this.calculateDistanceCoords(playerCoordinates, goalCoordinates);
+						if(distance < mindist){
+							mindist = distance;
+							playerid = res.cmd.p[2];	
+						}
+					}
+				}
+            }
+      }
+
+	  
+	return {mindist: distance, id: playerid};		  
+    }
+	  
+  }	  
   areOnTheLine(p1, p2, p3) {
     if (p1.x == p2.x && p1.x == p3.x) {
       return true;
@@ -226,12 +328,15 @@ class Agent {
     }
     return { x: x.toFixed(2), y: y.toFixed(2) };
   }
-  calculateDistance(f, a) {
+  calculateDistanceAngle(f, a) {
     return Math.sqrt(f.d**2 + a.d**2 - 2*f.d*a.d*Math.cos(Math.abs(f.a - a.a) / 180 * Math.PI));
   }
+  calculateDistanceCoords(c1, c2){
+  	return Math.sqrt((c1.x - c2.x)**2 + (c1.y - c2.y)**2);
+  }	
   locateObject(f1, f2, object) {
-    let da1 = this.calculateDistance(f1, object);
-    let da2 = this.calculateDistance(f2, object);
+    let da1 = this.calculateDistanceAngle(f1, object);
+    let da2 = this.calculateDistanceAngle(f2, object);
     let flag1 = {
       x: f1.x,
       y: f1.y,
