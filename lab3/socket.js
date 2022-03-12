@@ -1,5 +1,5 @@
 const dgram = require('dgram');
-module.exports = function(agent, teamName, version) {
+module.exports = function(agent, teamName, version, goalie) {
   const socket = dgram.createSocket({ type: 'udp4', reuseAddr: true });
   agent.setSocket(socket);
   socket.on('message', (msg, info) => {
@@ -10,5 +10,9 @@ module.exports = function(agent, teamName, version) {
       if (err) throw err;
     });
   }
-  socket.sendMsg(`(init ${teamName} (version ${version}))`);
+  if (goalie) {
+    socket.sendMsg(`(init ${teamName} (version ${version}) (goalie))`);
+  } else {
+    socket.sendMsg(`(init ${teamName} (version ${version}))`);
+  }
 }

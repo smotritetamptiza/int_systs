@@ -6,12 +6,12 @@ class RoleDistributor {
 	  leaderid: null,
 	  turns: 0
     };
-	this.state.role = null;  
+	this.state.role = null;
     this.state.team = team;
     this.state.id = id;
     this.state.goal = goal;
 	this.state.goalcoords = null;
-	  
+
     this.root = {
       exec(mgr, state) {
         state.command = null;
@@ -34,27 +34,27 @@ class RoleDistributor {
 		state.leaderid = state.id;
 		console.log("mydistance")  ;
 		  //add gole coords here or in agent? this.state.goalcoords
-		 
+
       },
       next: "teammaterotate"
-    };  
+    };
 	this.teammaterotate = {
 	  condition: (mgr, state) => 4 > state.turns,
       trueCond: "serchteammate",
       falseCond: "chooseleader"
-    }; 
+    };
 	this.serchteammate = {
       exec(mgr, state) {
         state.command = { n: "turn", v: "90" };
 		state.turns = state.turns+1;
-		console.log("serchteammate "+ state.turns);  
+		console.log("serchteammate "+ state.turns);
       },
       next: "sendCommand"
-    };  
+    };
 	this.chooseleader = {
 	  condition: (mgr, state) => state.id == state.leaderid,
       trueCond: "leader",
-      falseCond: "following"  
+      falseCond: "following"
     };
 	this.leader = {
       exec(mgr, state) {
@@ -72,7 +72,7 @@ class RoleDistributor {
       },
       next: "sendCommand"
     };
-	  
+
     this.rotate = {
       exec(mgr, state) {
         state.command = { n: "turn", v: "90" };

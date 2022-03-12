@@ -8,9 +8,9 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-function initPlayer(teamName, coordinates) {
-  let agent = new Agent(teamName, coordinates);
-  require('./socket')(agent, teamName, VERSION); // socket configuration
+function initPlayer(teamName, coordinates, goalie) {
+  let agent = new Agent(teamName, coordinates, goalie);
+  require('./socket')(agent, teamName, VERSION, goalie); // socket configuration
   setTimeout(function () {
     agent.socketSend('move', coordinates); // placing player on the field
   }, 10);
@@ -44,11 +44,12 @@ rl.question("Enter team name: ", function (answer) {
 
 
 rl.on('close', async () => {
-  await initPlayer(teamName, coordinates1);
+  await initPlayer(teamName, coordinates1, false);
+  await initPlayer("not_" + teamName, "-50 0", true);
   if (coordinates2) {
-    await initPlayer(teamName, coordinates2);
+    await initPlayer(teamName, coordinates2, false);
   }
   if (coordinates3) {
-    await initPlayer(teamName, coordinates3);
+    await initPlayer(teamName, coordinates3, false);
   }
 })

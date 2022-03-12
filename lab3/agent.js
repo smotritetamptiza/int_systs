@@ -4,6 +4,7 @@ const managerDT = require('./managerDT');
 const spDT = require('./singlePlayerDT');
 const RoleDistributor = require('./roleDistributor');
 let followingDT = require('./followingDT');
+const goalieDT = require('./goalieDT');
 
 const Flags = {
   ftl50: {x: -50, y: -39}, ftl40: {x: -40, y: -39},
@@ -38,7 +39,7 @@ const Flags = {
 };
 
 class Agent {
-  constructor(teamName, initialCoordinates) {
+  constructor(teamName, initialCoordinates, goalie) {
     this.teamName = teamName;
     this.initialCoordinates = initialCoordinates;
     this.position = 'l';
@@ -49,6 +50,7 @@ class Agent {
     this.lastact;
     this.role = null;
     this.DT = null;
+    this.goalie = goalie;
   }
   msgGot(msg) {
     let data = msg.toString('utf8');
@@ -71,29 +73,33 @@ class Agent {
   initAgent(p) {
     if (p[0] == "r") this.position = "r";
     if (p[1]) this.id = p[1];
+    if (this.goalie) {
+      this.DT = goalieDT;
+      return;
+    }
     this.DT = new RoleDistributor(this.teamName, this.id, spDT.state.sequence[0].fl);
   }
   analyzeEnv(msg, cmd, p) {
     if (cmd == 'see') {
       this.locateSelf(p);
-		
+
       if (this.run) {
         managerDT.getAction(this.DT, p);
         this.act = this.DT.state.command;
-	
-		  
-		/* 
+
+
+		/*
 		if(!this.role){
 		if(this.DT.state.mindistance && !this.DT.state.goalcoords){ //условие что мы уже определили свое расстояние до цели(видим ее первый раз в дереве), но не определили ее координаты(делаем это в тот же такт)
-			//locate goal - get goal coords and push them into roleDistributor	
-		}	
+			//locate goal - get goal coords and push them into roleDistributor
+		}
 		if("видим тиммейта"){
 			считаем находим координаты тиммейта, считаем расстояние от него до цели, если меньше чем текущее минимальные - записываем и делаем лидером его
 			//locateobj(coords for teammate) + calcdist(from teammate to goal) -> dist from teammate to goal
 			//if dist < DT.mindist -> mindist = dist, DT.leaderid = idteammate
 		}
-		
-		} */ 
+
+		} */
 		if (!this.role) {
 			if(this.DT.state.role != null){
           	this.role = this.DT.state.role;
@@ -108,7 +114,7 @@ class Agent {
             }
           }
         }
-		
+
 		}
       }
     if (cmd == 'hear') {
@@ -171,7 +177,7 @@ class Agent {
             break;
           }
         }
-      } else if (this.lastact.n == "dash") {
+      } else if (this.coordinates && this.lastact && this.lastact.n == "dash") {
         this.coordinates = {
           x: (Number(this.coordinates.x) + Number(this.vector.x)).toFixed(2),
           y: (Number(this.coordinates.y) + Number(this.vector.y)).toFixed(2)

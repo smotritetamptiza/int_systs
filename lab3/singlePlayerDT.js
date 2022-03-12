@@ -2,7 +2,7 @@ const FL = "flag", KI = "kick";
 const DT = {
   state: {
     next: 0,
-    sequence: [{act: FL, fl: "frb"}, {act: FL, fl: "gl"},
+    sequence: [/*{act: FL, fl: "frb"},*/ {act: FL, fl: "gl"},
     {act: KI, fl: "b", goal: "gr"}],
     command: null
   },
