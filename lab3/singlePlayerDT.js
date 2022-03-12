@@ -18,8 +18,13 @@ const DT = {
   },
   goalVisible: {
     condition: (mgr, state) => mgr.getVisible(state.action.fl),
-    trueCond: "rootNext",
+    trueCond: "turnToGoal",
     falseCond: "rotate"
+  },
+  turnToGoal: {
+    condition: (mgr, state) => mgr.getAngle(state.action.fl) != 0,
+    trueCond: "rotateToGoal",
+    falseCond: "rootNext"
   },
   rotate: {
     exec(mgr, state) {
@@ -33,21 +38,21 @@ const DT = {
     falseCond: "ballSeek"
   },
   flagSeek: {
-    condition: (mgr, state) => 3 > mgr.getDistance(state.action.fl),
-    trueCond: "closeFlag",
-    falseCond: "farGoal"
+    condition: (mgr, state) => mgr.getDistance(state.action.fl) >= 10,
+    trueCond: "runFast",
+    falseCond: "flagClose"
   },
-  closeFlag: {
+  flagClose: {
+    condition: (mgr, state) => mgr.getDistance(state.action.fl) > 3,
+    trueCond: "runSlow",
+    falseCond: "flagReached"
+  },
+  flagReached: {
     exec(mgr, state) {
       state.next++;
       state.action = state.sequence[state.next];
     },
     next: "goalVisible"
-  },
-  farGoal: {
-    condition: (mgr, state) => mgr.getAngle(state.action.fl) != 0,
-    trueCond: "rotateToGoal",
-    falseCond: "runToGoal"
   },
   rotateToGoal: {
     exec(mgr, state) {
@@ -55,9 +60,21 @@ const DT = {
     },
     next: "sendCommand"
   },
-  runToGoal: {
+  runFast: {
     exec(mgr, state) {
       state.command = { n: "dash", v: "100" };
+    },
+    next: "sendCommand"
+  },
+  runMedium: {
+    exec(mgr, state) {
+      state.command = { n: "dash", v: "50" };
+    },
+    next: "sendCommand"
+  },
+  runSlow: {
+    exec(mgr, state) {
+      state.command = { n: "dash", v: "30" };
     },
     next: "sendCommand"
   },
@@ -65,16 +82,32 @@ const DT = {
     command: (mgr, state) => state.command
   },
   ballSeek: {
-    condition: (mgr, state) => 0.5 > mgr.getDistance(state.action.fl),
-    trueCond: "closeBall",
-    falseCond: "farGoal"
+    condition: (mgr, state) => mgr.getDistance(state.action.fl) >= 5,
+    trueCond: "runFast",
+    falseCond: "ballClose"
   },
-  closeBall: {
+  ballClose: {
+    condition: (mgr, state) => mgr.getDistance(state.action.fl) > 0.5,
+    trueCond: "runMedium",
+    falseCond: "ballReached"
+  },
+  ballReached: {
     condition: (mgr, state) => mgr.getVisible(state.action.goal),
     trueCond: "ballGoalVisible",
     falseCond: "ballGoalInvisible"
   },
   ballGoalVisible: {
+    condition: (mgr, state) => mgr.getDistance(state.action.goal) >= 40,
+    trueCond: "kickNear",
+    falseCond: "kickFar"
+  },
+  kickNear: {
+    exec(mgr, state) {
+      state.command = { n: "kick", v: "60", a: mgr.getAngle(state.action.goal) };
+    },
+    next: "sendCommand"
+  },
+  kickFar: {
     exec(mgr, state) {
       state.command = { n: "kick", v: "100", a: mgr.getAngle(state.action.goal) };
     },
@@ -82,7 +115,7 @@ const DT = {
   },
   ballGoalInvisible: {
     exec(mgr, state) {
-      state.command = { n: "kick", v: "100", a: "90" };
+      state.command = { n: "kick", v: "10", a: "90" };
     },
     next: "sendCommand"
   }
