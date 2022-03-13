@@ -91,33 +91,27 @@ class Agent {
 
 		
 		if(!this.role){
-		if(this.DT.state.mindistance && !this.DT.state.goalcoords){
-			
-			let goalcoords = this.locateGoal(p, this.DT.state.goal);
-			this.DT.state.goalcoords = goalcoords;
-		}	
-			
+			if(this.DT.state.mindistance && !this.DT.state.goalcoords){
 
-		let min = this.closestPlayertoGoal(p, this.DT.state.team, this.DT.state.goalcoords)
-		if(min.mindist < this.DT.state.mindistance){
-			this.DT.state.mindistance = min.mindist;
-			this.DT.state.leaderid = min.id;
-		}	
-			
-		/*if("видим тиммейта"){
-			//chитаем находим координаты тиммейта, считаем расстояние от него до цели, если меньше чем текущее минимальные - записываем и делаем лидером его
-			//locateobj(coords for teammate) + calcdist(from teammate to goal) -> dist from teammate to goal
-			//if dist < DT.mindist -> mindist = dist, DT.leaderid = idteammate
-		}*/
-			
+				let goalcoords = this.locateGoal(p, this.DT.state.goal);
+				this.DT.state.goalcoords = goalcoords;
+			}	
 
+			if(this.DT.state.goalcoords){
+				let min = this.closestPlayertoGoal(p, this.DT.state.team, this.DT.state.goalcoords)
+				if(min.mindist < this.DT.state.mindistance){
+					this.DT.state.mindistance = min.mindist;
+					this.DT.state.leaderid = min.id;
+				}	
+			}
+		
 		} 
 		if (!this.role) {
 			if(this.DT.state.role != null){
           	this.role = this.DT.state.role;
             if (this.role == "leader") {
 				console.log("I'm leader " + this.id);
-              this.DT = spDT;
+              	this.DT = spDT;
             } else {
 			let leaderid = this.DT.state.leaderid;
 			console.log("I'm follower " + this.id);
@@ -198,9 +192,10 @@ class Agent {
     }
   }
   locateGoal(p, obj) {
+	  console.log("Locating goal");
     if (p && p.length > 3) {
       let flags = [];
-	  let goalCoordinates;
+	  let goalCoordinates = null;
 	  let goal;
       for (let res of p) {
         if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && (res.cmd.p[0] == "f" || res.cmd.p[0] == "g")) {
@@ -234,6 +229,7 @@ class Agent {
             }
        	}
     }
+	console.log("I can't locate goal!!!");  
 	  
   }	  
   closestPlayertoGoal(p, team, goalCoordinates) {
