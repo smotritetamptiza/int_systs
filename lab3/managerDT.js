@@ -62,6 +62,26 @@ const Manager = {
       }
     }
     throw new Error("I can't see the shit!");
+  },
+  getIsOnTheLeft(leader) {
+    if (!this.p) {
+      return true;
+    }
+    let pattern = leader.substring(0, leader.lastIndexOf('"'));
+    for (let res of this.p) {
+      if (res.cmd && res.cmd.p && res.cmd.p.length > 0) {
+        let name = res.cmd.p.join('');
+        if (name.startsWith(pattern) && name != leader) {
+          if (res.p[1] > 0) {
+            console.log("on the right");
+            return false;
+          } else {
+            return true;
+          }
+        }
+      }
+    }
+    return true;
   }
 };
 
