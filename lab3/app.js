@@ -19,15 +19,15 @@ function initPlayer(teamName, coordinates, goalie) {
 rl.question("Enter team name: ", function (answer) {
   teamName = answer || "myTeam";
   rl.question("Enter initial coordinates of the first player (X must be negative): ", function (answer) {
-    coordinates1 = answer || "-15 0";
+    coordinates1 = answer || "-15 10";
     rl.question("Do you want to add a second player? (y/n) ", function (answer) {
       if (answer.toLowerCase() == "y") {
         rl.question("Enter initial coordinates of the second player (X must be negative): ", function (answer) {
-          coordinates2 = answer || "-15 0";
+          coordinates2 = answer || "-15 10";
           rl.question("Do you want to add a third player? (y/n) ", function (answer) {
             if (answer.toLowerCase() == "y") {
               rl.question("Enter initial coordinates of the third player (X must be negative): ", function (answer) {
-                coordinates3 = answer || "-15 0";
+                coordinates3 = answer || "-15 10";
                 rl.close();
               });
             } else {

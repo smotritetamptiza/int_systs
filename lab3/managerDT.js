@@ -73,7 +73,7 @@ const Manager = {
         let name = res.cmd.p.join('');
         if (name.startsWith(pattern) && name != leader) {
           if (res.p[1] > 0) {
-            console.log("on the right");
+            //console.log("on the right");
             return false;
           } else {
             return true;

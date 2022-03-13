@@ -20,16 +20,16 @@ const DT = {
     falseCond: "goalVisible"
   },
   distBall: {
-    condition: (mgr, state) => mgr.getDistance("b") < 15,
+    condition: (mgr, state) => mgr.getDistance("b") < 20,
     trueCond: "ballClose",
     falseCond: "goalVisible"
   },
   ballClose: {
-    condition: (mgr, state) => mgr.getDistance("b") < 3,
-    trueCond: "prevPosKnown",
+    condition: (mgr, state) => mgr.getDistance("b") < 1.8,
+    trueCond: "distanceHigh", 
     falseCond: "ballAngle"
   },
-  prevPosKnown: {
+ /* prevPosKnown: {
     condition: (mgr, state) => state.ballPrevPos != null,
     trueCond: "calculateVelocity",
     falseCond: "setPrevPos"
@@ -38,7 +38,9 @@ const DT = {
     exec(mgr, state) {
       state.ballVelocity = state.ballPrevPos - mgr.getDistance("b");
       state.ballPrevPos = mgr.getDistance("b");
-      console.log(state.ballVelocity);
+      console.log("Ball dist is "+ mgr.getDistance("b"));
+      if(state.ballVelocity != 0)
+        console.log("Ball velocity is " + state.ballVelocity);
     },
     next: "velocityHigh"
   },
@@ -52,6 +54,11 @@ const DT = {
     condition: (mgr, state) => state.ballVelocity > 0.1,
     trueCond: "ballCatch",
     falseCond: "glVisible"
+  },*/
+  distanceHigh: {
+    condition: (mgr, state) => mgr.getDistance("b") < 1,
+    trueCond: "ballCatch", // ballCatch
+    falseCond: "glVisible" 
   },
   /*velocityPositive: {
     condition: (mgr, state) => state.ballVelocity >= 0,
@@ -59,13 +66,13 @@ const DT = {
     falseCond: "goalVisible"
   },*/
   ballAngle: {
-    condition: (mgr, state) => mgr.getAngle("b") == 0,
+    condition: (mgr, state) => Math.abs(mgr.getAngle("b")) <= 28, //5
     trueCond: "run",
     falseCond: "ballTurn"
   },
   run: {
     exec(mgr, state) {
-      state.command = { n: "dash", v: "50" };
+      state.command = { n: "dash", v: "40" };
     },
     next: "sendCommand"
   },
@@ -100,6 +107,7 @@ const DT = {
       state.next = 0;
       state.ballPrevPos = null;
       state.ballVelocity = null;
+      console.log("kick hard");
       state.command = { n: "kick", v: "100", a: mgr.getAngle("gl") };
     },
     next: "sendCommand"
@@ -109,6 +117,7 @@ const DT = {
       state.next = 0;
       state.ballPrevPos = null;
       state.ballVelocity = null;
+      console.log("kick soft");
       state.command = { n: "kick", v: "60", a: mgr.getAngle("gl") };
     },
     next: "sendCommand"
@@ -138,13 +147,13 @@ const DT = {
   // basic movements
   goalCloser: {
     exec(mgr, state) {
-      state.command = { n: "dash", v: "20" };
+      state.command = { n: "dash", v: "40" };
     },
     next: "sendCommand"
   },
   goalFarther: {
     exec(mgr, state) {
-      state.command = { n: "dash", v: "-15" };
+      state.command = { n: "dash", v: "-25" };
     },
     next: "sendCommand"
   },

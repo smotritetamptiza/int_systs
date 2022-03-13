@@ -92,33 +92,30 @@ class Agent {
 		
 		if(!this.role){
 			if(this.DT.state.mindistance && !this.DT.state.goalcoords){
-
 				let goalcoords = this.locateGoal(p, this.DT.state.goal);
 				this.DT.state.goalcoords = goalcoords;
 			}	
 
 			if(this.DT.state.goalcoords){
 				let min = this.closestPlayertoGoal(p, this.DT.state.team, this.DT.state.goalcoords)
-				if(min.mindist < this.DT.state.mindistance){
+				if(min && (min.mindist < this.DT.state.mindistance)){
 					this.DT.state.mindistance = min.mindist;
 					this.DT.state.leaderid = min.id;
 				}	
 			}
-		
-		} 
-		if (!this.role) {
 			if(this.DT.state.role != null){
-          	this.role = this.DT.state.role;
-            if (this.role == "leader") {
-				console.log("I'm leader " + this.id);
-              	this.DT = spDT;
-            } else {
-			let leaderid = this.DT.state.leaderid;
-			console.log("I'm follower " + this.id);
-              this.DT = followingDT;
-              this.DT.setLeader(`p"${this.teamName}"${leaderid}`);
-            }
-          }
+				this.role = this.DT.state.role;
+				if (this.role == "leader") {
+					console.log("I'm leader " + this.id);
+					this.DT = spDT;
+				} 
+				else {
+					let leaderid = this.DT.state.leaderid;
+					console.log("I'm follower " + this.id);
+					this.DT = followingDT;
+					this.DT.setLeader(`p"${this.teamName}"${leaderid}`);
+				}
+          	}
         }
 
 		}
@@ -192,7 +189,6 @@ class Agent {
     }
   }
   locateGoal(p, obj) {
-	  console.log("Locating goal");
     if (p && p.length > 3) {
       let flags = [];
 	  let goalCoordinates = null;
@@ -260,6 +256,8 @@ class Agent {
         }
 	  }
 		for (let res of p) {
+			if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && res.cmd.p[0] == "p")
+				console.log("I " + this.id + " see "+ res.cmd.p.join(""));
 			if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && res.cmd.p[0] == "p" && res.cmd.p[1] && (team == (res.cmd.p[1]).slice(1, (res.cmd.p[1]).length -1)) && res.cmd.p[2]) {
               player = {
                 d: res.p[0],

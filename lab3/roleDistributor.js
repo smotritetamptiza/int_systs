@@ -32,7 +32,7 @@ class RoleDistributor {
       exec(mgr, state) {
         state.mindistance = mgr.getDistance(state.goal);
 		state.leaderid = state.id;
-		console.log("mydistance")  ;
+		console.log("mydistance");
 		  //add gole coords here or in agent? this.state.goalcoords
 
       },
