@@ -4,7 +4,8 @@ const DT = {
     sequence: [{fl: "gr", max_dist: 5}, {fl: "fprt", max_dist: 28, min_dist: 20},
     {fl: "fprb", max_dist: 28, min_dist: 20}, {fl: "fprc", max_dist: 16, min_dist: 12}],
     command: null,
-    ballAction: "catch"
+    ballPrevPos: null,
+    ballVelocity: null,
   },
   root: {
     exec(mgr, state) {
@@ -19,25 +20,54 @@ const DT = {
     falseCond: "goalVisible"
   },
   distBall: {
-    condition: (mgr, state) => mgr.getDistance("b") < 10,
+    condition: (mgr, state) => mgr.getDistance("b") < 15,
     trueCond: "ballClose",
     falseCond: "goalVisible"
   },
   ballClose: {
     condition: (mgr, state) => mgr.getDistance("b") < 2,
-    trueCond: "chooseAction",
-    falseCond: "ballCloser"
+    trueCond: "prevPosKnown",
+    falseCond: "ballAngle"
   },
-  ballCloser: {
+  prevPosKnown: {
+    condition: (mgr, state) => state.ballPrevPos,
+    trueCond: "calculateVelocity",
+    falseCond: "setPrevPos"
+  },
+  calculateVelocity: {
     exec(mgr, state) {
-      state.ballAction = "kick";
+      state.ballVelocity = state.ballPrevPos - mgr.getDistance("b");
+      state.ballPrevPos = mgr.getDistance("b");
+      console.log(state.ballVelocity);
     },
-    next: "ballAngle"
+    next: "velocityHigh"
   },
+  setPrevPos: {
+    exec(mgr, state) {
+      state.ballPrevPos = mgr.getDistance("b");
+    },
+    next: "goalVisible"
+  },
+  velocityHigh: {
+    condition: (mgr, state) => state.ballVelocity > 0.2,
+    trueCond: "ballCatch",
+    falseCond: "glVisible"
+  },
+  /*velocityPositive: {
+    condition: (mgr, state) => state.ballVelocity >= 0,
+    trueCond: "glVisible",
+    falseCond: "goalVisible"
+  },*/
   ballAngle: {
     condition: (mgr, state) => mgr.getAngle("b") == 0,
-    trueCond: "goalCloser",
+    trueCond: "run",
     falseCond: "ballTurn"
+  },
+  run: {
+    exec(mgr, state) {
+      state.command = { n: "dash", v: "50" };
+    },
+    next: "sendCommand"
   },
   ballTurn: {
     exec(mgr, state) {
@@ -45,14 +75,12 @@ const DT = {
     },
     next: "sendCommand"
   },
-  chooseAction: {
-    condition: (mgr, state) => state.ballAction == "catch",
-    trueCond: "ballCatch",
-    falseCond: "glVisible"
-  },
   ballCatch: {
     exec(mgr, state) {
       state.next = 0;
+      state.ballPrevPos = null;
+      state.ballVelocity = null;
+      console.log("caught");
       state.command = { n: "catch", v: mgr.getAngle("b") };
     },
     next: "sendCommand"
@@ -63,24 +91,29 @@ const DT = {
     falseCond: "rotate"
   },
   glAngle: {
-    condition: (mgr, state) => Math.abs(mgr.getAngle("gl")) < 5,
-    trueCond: "ballKick",
-    falseCond: "glTurn"
+    condition: (mgr, state) => Math.abs(mgr.getAngle("gl")) < 10,
+    trueCond: "ballKickHard",
+    falseCond: "ballKickSoft"
   },
-  ballKick: {
+  ballKickHard: {
     exec(mgr, state) {
       state.next = 0;
+      state.ballPrevPos = null;
+      state.ballVelocity = null;
       state.command = { n: "kick", v: "100", a: mgr.getAngle("gl") };
-      state.ballAction = "catch";
     },
     next: "sendCommand"
   },
-  glTurn: {
+  ballKickSoft: {
     exec(mgr, state) {
-      state.command = { n: "turn", v: mgr.getAngle("gl") };
+      state.next = 0;
+      state.ballPrevPos = null;
+      state.ballVelocity = null;
+      state.command = { n: "kick", v: "60", a: mgr.getAngle("gl") };
     },
     next: "sendCommand"
   },
+  // fixing position
   goalVisible: {
     condition: (mgr, state) => mgr.getVisible(state.action.fl),
     trueCond: "goalAngle",
@@ -102,6 +135,7 @@ const DT = {
     trueCond: "goalFarther",
     falseCond: "rootNext"
   },
+  // basic movements
   goalCloser: {
     exec(mgr, state) {
       state.command = { n: "dash", v: "20" };
