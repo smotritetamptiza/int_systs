@@ -51,6 +51,7 @@ class Agent {
     this.role = null;
     this.DT = null;
     this.goalie = goalie;
+    this.teammates = [];
   }
   msgGot(msg) {
     let data = msg.toString('utf8');
@@ -89,31 +90,59 @@ class Agent {
         this.act = this.DT.state.command;
 
 
-		
+
 		if(!this.role){
 			if(this.DT.state.mindistance && !this.DT.state.goalcoords){
 				let goalcoords = this.locateGoal(p, this.DT.state.goal);
 				this.DT.state.goalcoords = goalcoords;
-			}	
-
+			}
 			if(this.DT.state.goalcoords){
-				let min = this.closestPlayertoGoal(p, this.DT.state.team, this.DT.state.goalcoords)
-				if(min && (min.mindist < this.DT.state.mindistance)){
-					this.DT.state.mindistance = min.mindist;
-					this.DT.state.leaderid = min.id;
-				}	
+				this.closestPlayertoGoal(p, this.DT.state.team, this.DT.state.goalcoords);
+        let min = null;
+        for (let tm of this.teammates) {
+          if (tm.dist < this.DT.state.mindistance) {
+            this.DT.state.mindistance = tm.dist;
+  					this.DT.state.leaderid = tm.id;
+          }
+        }
 			}
 			if(this.DT.state.role != null){
 				this.role = this.DT.state.role;
 				if (this.role == "leader") {
 					console.log("I'm leader " + this.id);
 					this.DT = spDT;
-				} 
+				}
 				else {
 					let leaderid = this.DT.state.leaderid;
 					console.log("I'm follower " + this.id);
-					this.DT = followingDT;
+					this.DT = new followingDT();
 					this.DT.setLeader(`p"${this.teamName}"${leaderid}`);
+          if (this.teammates) {
+            let leader = this.teammates.filter(tm => tm.id == leaderid);
+            let notLeaders = this.teammates.filter(tm => tm.id != leaderid);
+            if (notLeaders.length > 0) {
+              let myCoordsToLeader = this.calculateDistanceCoords(this.coordinates, leader[0].coords);
+              let notMyCoordsToLeader = this.calculateDistanceCoords(notLeaders[0].coords, leader[0].coords);
+              console.log("my: " + myCoordsToLeader);
+              console.log("not my: " + notMyCoordsToLeader);
+
+              if (myCoordsToLeader < notMyCoordsToLeader) {
+                this.DT.setPosition("left");
+              } else if (myCoordsToLeader > notMyCoordsToLeader) {
+                this.DT.setPosition("right");
+              } else {
+                let rand = Math.random();
+                if (rand >= 0.5) {
+                  this.DT.setPosition("left");
+                } else {
+                  this.DT.setPosition("right");
+                }
+              }
+            } else {
+              this.DT.setPosition("left");
+            }
+            console.log(this.DT.state.position);
+          }
 				}
           	}
         }
@@ -209,7 +238,7 @@ class Agent {
             console.log(f_name);
             console.log(e);
           }
-			
+
         }
 		  if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && res.cmd.p.join('') == obj) {
               goal = {
@@ -225,17 +254,12 @@ class Agent {
             }
        	}
     }
-	console.log("I can't locate goal!!!");  
-	  
-  }	  
+	console.log("I can't locate goal!!!");
+
+  }
   closestPlayertoGoal(p, team, goalCoordinates) {
     if (p && p.length > 3) {
       let flags = [];
-	  let playerCoordinates;
-	  let distance;
-	  let mindist = 500;
-	  let playerid;
-	  let player;
       for (let res of p) {
         if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && (res.cmd.p[0] == "f" || res.cmd.p[0] == "g")) {
           let f_name = res.cmd.p.join('');
@@ -252,35 +276,37 @@ class Agent {
             console.log(f_name);
             console.log(e);
           }
-			
+
         }
 	  }
 		for (let res of p) {
-			if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && res.cmd.p[0] == "p")
-				console.log("I " + this.id + " see "+ res.cmd.p.join(""));
-			if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && res.cmd.p[0] == "p" && res.cmd.p[1] && (team == (res.cmd.p[1]).slice(1, (res.cmd.p[1]).length -1)) && res.cmd.p[2]) {
-              player = {
+			if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && res.cmd.p[0] == "p" &&
+      res.cmd.p[1] && (team == (res.cmd.p[1]).slice(1, (res.cmd.p[1]).length -1)) && res.cmd.p[2]) {
+              let player = {
                 d: res.p[0],
                 a: res.p[1]
               };
+              let playerCoordinates;
+          	  let distance;
 				for (let i = 1; i < flags.length; i++) {
 					if (!this.areOnTheLine(flags[0], this.coordinates, flags[i])) {
 						playerCoordinates = this.locateObject(flags[0], flags[i], player);
 						distance = this.calculateDistanceCoords(playerCoordinates, goalCoordinates);
-						if(distance < mindist){
-							mindist = distance;
-							playerid = res.cmd.p[2];	
-						}
+            if (playerCoordinates && distance) break;
 					}
 				}
-            }
+        let isin = this.teammates.filter(tm => tm.id == res.cmd.p[2]);
+        if (isin.length == 0) {
+          this.teammates.push({
+            id: res.cmd.p[2],
+            coords: playerCoordinates,
+            dist: distance
+          });
+        }
       }
-
-	  
-	return {mindist: distance, id: playerid};		  
     }
-	  
-  }	  
+    }
+  }
   areOnTheLine(p1, p2, p3) {
     if (p1.x == p2.x && p1.x == p3.x) {
       return true;
@@ -327,7 +353,7 @@ class Agent {
   }
   calculateDistanceCoords(c1, c2){
   	return Math.sqrt((c1.x - c2.x)**2 + (c1.y - c2.y)**2);
-  }	
+  }
   locateObject(f1, f2, object) {
     let da1 = this.calculateDistanceAngle(f1, object);
     let da2 = this.calculateDistanceAngle(f2, object);
