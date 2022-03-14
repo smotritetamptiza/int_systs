@@ -25,46 +25,15 @@ const DT = {
     falseCond: "goalVisible"
   },
   ballClose: {
-    condition: (mgr, state) => mgr.getDistance("b") < 1.8,
+    condition: (mgr, state) => mgr.getDistance("b") < 2,
     trueCond: "distanceHigh", 
     falseCond: "ballAngle"
   },
- /* prevPosKnown: {
-    condition: (mgr, state) => state.ballPrevPos != null,
-    trueCond: "calculateVelocity",
-    falseCond: "setPrevPos"
-  },
-  calculateVelocity: {
-    exec(mgr, state) {
-      state.ballVelocity = state.ballPrevPos - mgr.getDistance("b");
-      state.ballPrevPos = mgr.getDistance("b");
-      console.log("Ball dist is "+ mgr.getDistance("b"));
-      if(state.ballVelocity != 0)
-        console.log("Ball velocity is " + state.ballVelocity);
-    },
-    next: "velocityHigh"
-  },
-  setPrevPos: {
-    exec(mgr, state) {
-      state.ballPrevPos = mgr.getDistance("b");
-    },
-    next: "goalVisible"
-  },
-  velocityHigh: {
-    condition: (mgr, state) => state.ballVelocity > 0.1,
-    trueCond: "ballCatch",
-    falseCond: "glVisible"
-  },*/
-  distanceHigh: {
+ distanceHigh: {
     condition: (mgr, state) => mgr.getDistance("b") < 1,
     trueCond: "ballCatch", // ballCatch
     falseCond: "glVisible" 
   },
-  /*velocityPositive: {
-    condition: (mgr, state) => state.ballVelocity >= 0,
-    trueCond: "glVisible",
-    falseCond: "goalVisible"
-  },*/
   ballAngle: {
     condition: (mgr, state) => Math.abs(mgr.getAngle("b")) <= 28, //5
     trueCond: "run",

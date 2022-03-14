@@ -22,7 +22,7 @@ class DT {
       falseCond: "checkLeft"
     };
     this.angleFar = {
-      condition: (mgr, state) => Math.abs(mgr.getAngle(state.leader)) > 5,
+      condition: (mgr, state) => Math.abs(mgr.getAngle(state.leader)) > 10,
       trueCond: "rotateFar",
       falseCond: "runFast"
     };
@@ -69,10 +69,21 @@ class DT {
     };
     this.closeLeader = {
       condition: (mgr, state) => mgr.getDistance(state.leader) < 7,
-      trueCond: "runVerySlow",
+      trueCond: "evenCloserLeader",
       falseCond: "runSlower"
     };
-    this.runVerySlow = {
+	this.evenCloserLeader = {
+      condition: (mgr, state) => mgr.getDistance(state.leader) < 4,
+      trueCond: "stopRunning",
+      falseCond: "runVerySlow"
+    };
+    this.stopRunning = {
+      exec(mgr, state) {
+        state.command = { n: "dash", v: "0" };
+      },
+      next: "sendCommand"
+    };
+	this.runVerySlow = {
       exec(mgr, state) {
         state.command = { n: "dash", v: "20" };
       },
