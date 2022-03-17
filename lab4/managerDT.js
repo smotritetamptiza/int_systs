@@ -64,6 +64,17 @@ const Manager = {
     throw new Error("I can't see the shit!");
   },
   seesTeammate(teamName) {
+	if (this.p && this.p.length > 3) {
+	for (let res of this.p) {
+			if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && res.cmd.p[0] == "p" &&
+      res.cmd.p[1] && (teamName == (res.cmd.p[1]).slice(1, (res.cmd.p[1]).length -1))) {
+				console.log("I see my teammate");
+			return true;
+      }
+    }
+	
+	
+	}
     return false;
   }
 

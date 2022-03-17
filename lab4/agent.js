@@ -6,6 +6,7 @@ const RoleDistributor = require('./roleDistributor');
 let followingDT = require('./followingDT');
 const goalieDT = require('./goalieDT');
 const passDT = require('./passDT');
+const scoreDT = require('./scoreDT');
 
 const Flags = {
   ftl50: {x: -50, y: -39}, ftl40: {x: -40, y: -39},
@@ -78,6 +79,10 @@ class Agent {
       this.DT = passDT;
       this.DT.setTeamname(this.teamName);
     }
+	if (this.role == "score") {
+      this.DT = scoreDT;
+      this.DT.setTeamname(this.teamName);
+    }
   }
   analyzeEnv(msg, cmd, p) {
     if (cmd == 'see') {
@@ -93,16 +98,14 @@ class Agent {
       if (p && p.length >= 3) {
         if (p[2] == "play_on") {
           this.run = true;
-        } if (this.run && p[2].startsWith("goal_")) {
+        } 
+		if (this.run && p[2].startsWith("goal_")) {
           this.run = false;
           this.socketSend('move', this.initialCoordinates);
-          /*setTimeout(() => {
-            if (spDT.state.sequence[spDT.state.next].act &&
-              spDT.state.sequence[spDT.state.next] == "kick") {
-              spDT.state.next++;
-            }
-          }, 4900);*/
         }
+		if(p[1] != "self" && p[2] == "go" && !p[1].startsWith("not")){
+			this.DT.state.heard_go = true;
+		}  
       }
     }
   }

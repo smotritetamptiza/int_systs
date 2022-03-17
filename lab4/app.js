@@ -30,7 +30,7 @@ rl.question("Enter team name: ", function (answer) {
 
 rl.on('close', async () => {
   await initPlayer(teamName, coordinates1, false, "pass");
-  await initPlayer(teamName, coordinates2, false, "goal");
+  await initPlayer(teamName, coordinates2, false, "score");
 
   await initPlayer("not_" + teamName, "-51 7", false, null);
   await initPlayer("not_" + teamName, "-51 -7", false, null);
