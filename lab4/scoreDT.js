@@ -4,16 +4,13 @@ const DT = {
     next: 0,
     sequence: [{act: FL, fl: "fplb"},{act: FL, fl: "fgrb"}, {act: FL, fl: "b", goal: "gr"}],
     command: null,
-	heard_go: false
+	  heard_go: false
   },
   setTeamname(teamName) {
-    this.teamName = teamName;
+    this.state.teamName = teamName;
   },
   root: {
     exec(mgr, state) {
-      if (state.next == state.sequence.length) {
-        state.next = 0;
-      }
       state.action = state.sequence[state.next];
       state.command = null;
     },
@@ -26,7 +23,7 @@ const DT = {
   },
   GOAL: {
     exec(mgr, state) {
-	 console.log("I HEARD GO");	
+      console.log("I HEARD GO");
       state.next = 2;
       state.action = state.sequence[state.next];
     },
@@ -35,7 +32,7 @@ const DT = {
   getPass: {
     condition: (mgr, state) => mgr.getVisible(state.action.fl),
     trueCond: "turnToBALL",
-    falseCond: "runMedium"
+    falseCond: "runSlow"
   },
   goalVisible: {
     condition: (mgr, state) => mgr.getVisible(state.action.fl),
@@ -59,10 +56,14 @@ const DT = {
   },
   flagReached: {
     exec(mgr, state) {
-      state.next++;
+      if (state.next < 1) {
+        state.next++;
+      } else {
+        state.next = 0;
+      }
       state.action = state.sequence[state.next];
     },
-    next: "goalVisible"
+    next: "rootNext"
   },
 	//BALL
   turnToBALL: {

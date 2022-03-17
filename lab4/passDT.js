@@ -8,7 +8,7 @@ const DT = {
     said_go: false
   },
   setTeamname(teamName) {
-    this.teamName = teamName;
+    this.state.teamName = teamName;
   },
   root: {
     exec(mgr, state) {
@@ -85,7 +85,7 @@ const DT = {
   passToTeammate: {
     exec(mgr, state) {
       state.command = { n: "kick", v: 100,
-      a: mgr.getAngle(mgr.getTeammateName(state.teamName)) };
+      a: mgr.getTeammateAngle(state.teamName) };
       state.said_go = false;
       state.wait_counter = 5;
     },
@@ -95,6 +95,7 @@ const DT = {
     exec(mgr, state) {
       state.command = { n: "say", v: "go" };
       state.said_go = true;
+      console.log("i said go");
     },
     next: "sendCommand"
   },

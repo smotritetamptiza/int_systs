@@ -98,14 +98,16 @@ class Agent {
       if (p && p.length >= 3) {
         if (p[2] == "play_on") {
           this.run = true;
-        } 
-		if (this.run && p[2].startsWith("goal_")) {
+        }
+
+        if (this.run && p[2].startsWith("goal_")) {
           this.run = false;
           this.socketSend('move', this.initialCoordinates);
         }
-		if(p[1] != "self" && p[2] == "go" && !p[1].startsWith("not")){
-			this.DT.state.heard_go = true;
-		}  
+
+        if(p[1] != "self" && p[2] == "\"go\"" && this.DT){
+          this.DT.state.heard_go = true;
+        }
       }
     }
   }
