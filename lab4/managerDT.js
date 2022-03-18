@@ -79,6 +79,18 @@ const Manager = {
   	}
     return false;
   },
+  getTeammateDistance(teamName) {
+    if (this.p) {
+      for (let res of this.p) {
+        if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && res.cmd.p[0] == "p" &&
+        res.cmd.p[1] && (res.cmd.p[1] == "\"" + teamName + "\"")) {
+          console.log("I see my teammate");
+          return res.p[0];
+        }
+      }
+    }
+    console.error("I can't see the shit");
+  },
   getTeammateAngle(teamName) {
     if (this.p) {
       for (let res of this.p) {

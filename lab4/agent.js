@@ -113,7 +113,6 @@ class Agent {
 
         if(p[1] != "self" && p[2] == "\"go\"" && this.role == "score" && this.DT){
           this.DT.state.heard_go = true;
-          this.act = {n: "turn", v: p[1]};
         }
       }
     }

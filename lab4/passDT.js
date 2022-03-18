@@ -4,9 +4,12 @@ const DT = {
     next: 0,
     sequence: [{act: FL, fl: "fplc"}, {act: FL, fl: "b"}],
     command: null,
-    wait_counter: 5,
+    wait_counter: 10,
     said_go: false,
-    passed: false
+    passed: false,
+    teammateDistance: 0,
+    teammateAngle: 0
+
   },
   setTeamname(teamName) {
     this.state.teamName = teamName;
@@ -93,16 +96,22 @@ const DT = {
   },
   passToTeammate: {
     exec(mgr, state) {
-      state.command = { n: "kick", v: 100,
-      a: mgr.getTeammateAngle(state.teamName) };
+      //let passedDistance = mgr.getTeammateDistance(state.teamName) / state.teammateDistance;
+      let passedAngle = mgr.getTeammateAngle(state.teamName) - state.teammateAngle;
+      let coeff = mgr.getTeammateDistance(state.teamName) / 3;
+
+      state.command = { n: "kick", v: 90,
+      a: mgr.getTeammateAngle(state.teamName) + passedAngle * coeff};
       state.said_go = false;
-      state.wait_counter = 5;
+      state.wait_counter = 10;
       state.passed = true;
     },
     next: "sendCommand"
   },
   sayGo: {
     exec(mgr, state) {
+      state.teammateAngle = mgr.getTeammateAngle(state.teamName);
+      state.teammateDistance = mgr.getTeammateDistance(state.teamName);
       state.command = { n: "say", v: "go" };
       state.said_go = true;
       console.log("i said go");

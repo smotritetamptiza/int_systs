@@ -4,7 +4,6 @@ const DT = {
     next: 0,
     sequence: [{act: FL, fl: "fplb"},{act: FL, fl: "fgrb"}, {act: FL, fl: "b", goal: "gr"}],
     command: null,
-    wait_counter: 5,
 	  heard_go: false
   },
   setTeamname(teamName) {
@@ -12,9 +11,6 @@ const DT = {
   },
   root: {
     exec(mgr, state) {
-      if (state.next == 0) {
-        state.wait_counter = 5;
-      }
       state.action = state.sequence[state.next];
       state.command = null;
     },
@@ -36,21 +32,7 @@ const DT = {
   getPass: {
     condition: (mgr, state) => mgr.getVisible(state.action.fl),
     trueCond: "turnToBALL",
-    falseCond: "waitForBall"
-  },
-
-  waitForBall: {
-    condition: (mgr, state) => state.wait_counter > 0,
-    trueCond: "wait",
-    falseCond: "ballVisible" // RUN SLOW USED TO BE HERE
-  },
-  wait: {
-    exec(mgr, state) {
-      console.log("and i wait");
-      state.wait_counter--;
-      state.command = null;
-    },
-    next: "sendCommand"
+    falseCond: "runSlow"
   },
 
   goalVisible: {
