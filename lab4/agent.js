@@ -103,10 +103,17 @@ class Agent {
         if (this.run && p[2].startsWith("goal_")) {
           this.run = false;
           this.socketSend('move', this.initialCoordinates);
+          if (this.DT) {
+            this.DT.state.next = 0;
+            if (this.DT.state.heard_go) {
+              this.DT.state.heard_go = false;
+            }
+          }
         }
 
-        if(p[1] != "self" && p[2] == "\"go\"" && this.DT){
+        if(p[1] != "self" && p[2] == "\"go\"" && this.role == "score" && this.DT){
           this.DT.state.heard_go = true;
+          this.act = {n: "turn", v: p[1]};
         }
       }
     }

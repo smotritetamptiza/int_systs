@@ -5,17 +5,26 @@ const DT = {
     sequence: [{act: FL, fl: "fplc"}, {act: FL, fl: "b"}],
     command: null,
     wait_counter: 5,
-    said_go: false
+    said_go: false,
+    passed: false
   },
   setTeamname(teamName) {
     this.state.teamName = teamName;
   },
   root: {
     exec(mgr, state) {
+      if (state.next == 0) {
+        state.passed = false;
+      }
       state.action = state.sequence[state.next];
       state.command = null;
     },
-    next: "goalVisible"
+    next: "passed"
+  },
+  passed: {
+    condition: (mgr, state) => state.passed,
+    trueCond: "wait",
+    falseCond: "goalVisible"
   },
   goalVisible: {
     condition: (mgr, state) => mgr.getVisible(state.action.fl),
@@ -88,6 +97,7 @@ const DT = {
       a: mgr.getTeammateAngle(state.teamName) };
       state.said_go = false;
       state.wait_counter = 5;
+      state.passed = true;
     },
     next: "sendCommand"
   },
