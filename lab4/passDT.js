@@ -125,6 +125,9 @@ const DT = {
           y: state.teammateCoordinates.y - state.coordinates.y,
         };
         let vectorLength = Math.sqrt(state.teammateVector.x**2 + state.teammateVector.y**2);
+        if (!vectorLength) {
+          vectorLength = 1;
+        }
         let auxAngleCos = (-currCoordRel.x*state.teammateVector.x - currCoordRel.y*state.teammateVector.y) /
           (oldDistance * vectorLength);
         let ballSpeed = 1.5;
