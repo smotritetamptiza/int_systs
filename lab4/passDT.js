@@ -4,15 +4,37 @@ const DT = {
     next: 0,
     sequence: [{act: FL, fl: "fplc"}, {act: FL, fl: "b"}],
     command: null,
-    wait_counter: 10,
+    wait_counter: 15,
     said_go: false,
     passed: false,
-    teammateDistance: 0,
-    teammateAngle: 0
-
+    coordinates: null,
+    teammateCoordinates: null,
+    teammateVector: null
   },
   setTeamname(teamName) {
     this.state.teamName = teamName;
+  },
+  setMyCoordinates(coordinates) {
+    if (coordinates) {
+      this.state.coordinates = {
+        x: Number(coordinates.x),
+        y: Number(coordinates.y),
+      };
+    }
+  },
+  setTeammateCoordinates(coordinates) {
+    if (this.state.teammateCoordinates && coordinates) {
+      this.state.teammateVector = {
+        x: Number(coordinates.x) - this.state.teammateCoordinates.x,
+        y: Number(coordinates.y) - this.state.teammateCoordinates.y,
+      };
+    }
+    if (coordinates) {
+      this.state.teammateCoordinates = {
+        x: Number(coordinates.x),
+        y: Number(coordinates.y),
+      };
+    }
   },
   root: {
     exec(mgr, state) {
@@ -96,22 +118,46 @@ const DT = {
   },
   passToTeammate: {
     exec(mgr, state) {
-      //let passedDistance = mgr.getTeammateDistance(state.teamName) / state.teammateDistance;
-      let passedAngle = mgr.getTeammateAngle(state.teamName) - state.teammateAngle;
-      let coeff = mgr.getTeammateDistance(state.teamName) / 3;
+      let oldDistance = mgr.getTeammateDistance(state.teamName);
+      let coeff = oldDistance / 1.8 + 1;
+      let currCoordRel = {
+        x: state.teammateCoordinates.x - state.coordinates.x,
+        y: state.teammateCoordinates.y - state.coordinates.y,
+      };
+      let nextPosRel = {
+        x: currCoordRel.x + coeff*state.teammateVector.x,
+        y: currCoordRel.y + coeff*state.teammateVector.y
+      };
+      let oldAngle = Math.atan(currCoordRel.y / currCoordRel.x);
+      let nextPosRotated = {
+        x: Math.cos(oldAngle) * nextPosRel.x + Math.sin(oldAngle) * nextPosRel.y,
+        y: -Math.sin(oldAngle) * nextPosRel.x + Math.cos(oldAngle) * nextPosRel.y
+      };
+      let newAngle = Math.atan(nextPosRotated.y / nextPosRotated.x);
+
+      let coordCheck = {
+        x: Math.cos(oldAngle) * currCoordRel.x - Math.sin(oldAngle) * currCoordRel.y,
+        y: Math.sin(oldAngle) * currCoordRel.x + Math.cos(oldAngle) * currCoordRel.y
+      };
+
+      //console.log("check: " + JSON.stringify(coordCheck));
+
+      console.log("curr pos: " + JSON.stringify(currCoordRel));
+      console.log("next pos: " + JSON.stringify(nextPosRel));
+
+      //console.log("curr angle: " + JSON.stringify(oldAngle));
+      console.log("next angle (rel): " + (newAngle / Math.PI * 180));
 
       state.command = { n: "kick", v: 90,
-      a: mgr.getTeammateAngle(state.teamName) + passedAngle * coeff};
+      a: mgr.getTeammateAngle(state.teamName) + (newAngle / Math.PI * 180)}; // НАДО ОПРЕДЕЛЯТЬ ЗНАК УГЛА
       state.said_go = false;
-      state.wait_counter = 10;
+      state.wait_counter = 15;
       state.passed = true;
     },
     next: "sendCommand"
   },
   sayGo: {
     exec(mgr, state) {
-      state.teammateAngle = mgr.getTeammateAngle(state.teamName);
-      state.teammateDistance = mgr.getTeammateDistance(state.teamName);
       state.command = { n: "say", v: "go" };
       state.said_go = true;
       console.log("i said go");

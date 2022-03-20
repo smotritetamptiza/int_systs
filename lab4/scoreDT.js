@@ -18,21 +18,21 @@ const DT = {
   },
   rootNext: {
     condition: (mgr, state) => state.heard_go == true,
-    trueCond: "GOAL",
+    trueCond: /*"GOAL",*/ "getPass",
     falseCond: "goalVisible"
   },
-  GOAL: {
+  /*GOAL: {
     exec(mgr, state) {
-      console.log("I HEARD GO");
-      state.next = 2;
-      state.action = state.sequence[state.next];
+      //console.log("I HEARD GO");
+      //state.next = 2;
+      //state.action = state.sequence[state.next];
     },
     next: "getPass"
-  },
+  },*/
   getPass: {
-    condition: (mgr, state) => mgr.getVisible(state.action.fl),
-    trueCond: "turnToBALL",
-    falseCond: "runSlow"
+    condition: (mgr, state) => mgr.getVisible("b"),
+    trueCond: "changeAction",
+    falseCond: "goalVisible"
   },
 
   goalVisible: {
@@ -57,7 +57,9 @@ const DT = {
   },
   flagReached: {
     exec(mgr, state) {
-      if (state.next < 1) {
+      if (state.heard_go) {
+        state.next = 2;
+      } else if (state.next < 1) {
         state.next++;
       } else {
         state.next = 0;
@@ -67,10 +69,12 @@ const DT = {
     next: "rootNext"
   },
 	//BALL
-  ballVisible: {
-    condition: (mgr, state) => mgr.getVisible(state.action.fl),
-    trueCond: "turnToBALL",
-    falseCond: "rotate"
+  changeAction: {
+    exec(mgr, state) {
+      state.next = 2;
+      state.action = state.sequence[state.next];
+    },
+    next: "turnToBALL"
   },
   turnToBALL: {
     condition: (mgr, state) => mgr.getAngle(state.action.fl) != 0,
@@ -111,7 +115,7 @@ const DT = {
   },
   ballGoalInvisible: {
     exec(mgr, state) {
-      state.command = { n: "kick", v: "10", a: "90" };
+      state.command = { n: "kick", v: "10", a: "70" };
     },
     next: "sendCommand"
   },

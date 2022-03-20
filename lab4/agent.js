@@ -88,6 +88,10 @@ class Agent {
     if (cmd == 'see') {
       this.locateSelf(p);
       if (this.run && this.DT) {
+        if (this.role == "pass") {
+          this.DT.setMyCoordinates(this.coordinates);
+          this.DT.setTeammateCoordinates(this.locateTeammate(p));
+        }
         managerDT.getAction(this.DT, p);
         this.act = this.DT.state.command;
       }
@@ -113,6 +117,7 @@ class Agent {
 
         if(p[1] != "self" && p[2] == "\"go\"" && this.role == "score" && this.DT){
           this.DT.state.heard_go = true;
+          console.log("I HEARD GO");
         }
       }
     }
@@ -210,6 +215,43 @@ class Agent {
     }
 	console.log("I can't locate goal!!!");
 
+  }
+  locateTeammate(p) {
+    if (p && p.length > 3) {
+      let flags = [];
+      let teammateCoordinates = null;
+      for (let res of p) {
+        if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && (res.cmd.p[0] == "f" || res.cmd.p[0] == "g")) {
+          let f_name = res.cmd.p.join('');
+          try {
+            let f = {
+              x: Flags[f_name].x,
+              y: Flags[f_name].y,
+              d: res.p[0],
+              a: res.p[1]
+            };
+            flags.push(f);
+          } catch (e) {
+            console.log(f_name);
+            console.log(e);
+          }
+
+        }
+        if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && res.cmd.p[0] == "p" &&
+        res.cmd.p[1] && (res.cmd.p[1] == "\"" + this.teamName + "\"")) {
+          let teammate = {
+            d: res.p[0],
+            a: res.p[1]
+          };
+          for (let i = 1; i < flags.length; i++) {
+            if (!this.areOnTheLine(flags[0], this.coordinates, flags[i])) {
+                teammateCoordinates = this.locateObject(flags[0], flags[i], teammate);
+                return teammateCoordinates;
+            }
+          }
+        }
+      }
+    }
   }
   closestPlayertoGoal(p, team, goalCoordinates) {
     if (p && p.length > 3) {
