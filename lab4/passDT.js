@@ -171,11 +171,11 @@ const DT = {
       */
       let currAngle = mgr.getTeammateAngle(state.teamName);
       if (currAngle > state.prevAngle) {
-        state.command = { n: "kick", v: 75, a: currAngle + 20};
+        state.command = { n: "kick", v: 85, a: currAngle + 20};
       } else if (currAngle < state.prevAngle) {
-        state.command = { n: "kick", v: 75, a: currAngle - 20};
+        state.command = { n: "kick", v: 85, a: currAngle - 20};
       } else {
-        state.command = { n: "kick", v: 75, a: currAngle};
+        state.command = { n: "kick", v: 85, a: currAngle};
       }
       state.said_go = false;
       state.wait_counter = 15;
