@@ -9,7 +9,8 @@ const DT = {
     passed: false,
     coordinates: null,
     teammateCoordinates: null,
-    teammateVector: null
+    teammateVector: null,
+    prevAngle: null
   },
   setTeamname(teamName) {
     this.state.teamName = teamName;
@@ -118,7 +119,7 @@ const DT = {
   },
   passToTeammate: {
     exec(mgr, state) {
-      if (state.teammateVector) {
+      /*if (state.teammateVector) {
         let oldDistance = mgr.getTeammateDistance(state.teamName);
         let currCoordRel = {
           x: state.teammateCoordinates.x - state.coordinates.x,
@@ -167,8 +168,15 @@ const DT = {
       } else {
         state.command = { n: "kick", v: 80,
         a: mgr.getTeammateAngle(state.teamName) - 30};
+      */
+      let currAngle = mgr.getTeammateAngle(state.teamName);
+      if (currAngle > state.prevAngle) {
+        state.command = { n: "kick", v: 75, a: currAngle + 20};
+      } else if (currAngle < state.prevAngle) {
+        state.command = { n: "kick", v: 75, a: currAngle - 20};
+      } else {
+        state.command = { n: "kick", v: 75, a: currAngle};
       }
-
       state.said_go = false;
       state.wait_counter = 15;
       state.passed = true;
@@ -177,6 +185,7 @@ const DT = {
   },
   sayGo: {
     exec(mgr, state) {
+      state.prevAngle = mgr.getTeammateAngle(state.teamName);
       state.command = { n: "say", v: "go" };
       state.said_go = true;
       console.log("i said go");
