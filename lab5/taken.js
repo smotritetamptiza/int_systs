@@ -13,6 +13,7 @@ let Taken = {
       this.teamOwn = this.locatePlayers(input, flags, (teamName) => team == teamName);
       this.team = this.locatePlayers(input, flags, (teamName) => team != teamName);
     }
+	return this;  
   },
   setLocation(coords) {
     if (!coords) return

@@ -53,7 +53,7 @@ const TA = {
       let dist = taken.ball.dist
       state.next = false
       if (dist > 0.5) {
-        is (state.local.goalie) {
+        if (state.local.goalie) {
           if (state.local.catch < 3) {
             state.local.catch++
             return {n: "catch", v: angle}

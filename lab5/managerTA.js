@@ -4,6 +4,9 @@ const Manager = {
   setHear(input) {
     Taken.setHear(input)
   },
+  setSee(input, team, side) {
+    Taken.setSee(input, team, side)
+  },
   setLocation(coords) {
     Taken.setLocation(coords)
   },
@@ -53,7 +56,7 @@ const Manager = {
           if (!guard) continue
         }
         if (e.synch) {
-          if (e,synch.endsWith("?")) {
+          if (e.synch.endsWith("?")) {
             let cond = e.synch.substr(0, e.synch.length-1)
             if (!ta.actions[cond]) throw `Unexpected synch: ${e.synch}`
             console.log(`Synch[${taken.time}]: ${e.synch}`);
@@ -101,7 +104,7 @@ const Manager = {
       if (e.assign) {
         for (let a of e.assign) {
           if (a.type == "timer") {
-            if (!ta.state.timers[a.n]) throw `Unexpected timer: ${a.n}`
+            //if (!ta.state.timers[a.n]) throw `Unexpected timer: ${a.n}`
             ta.state.timers[a.n] = a.v
           } else {
             if (!ta.state.variables[a.n]) throw `Unexpected variable: ${a.n}`
@@ -149,7 +152,7 @@ const Manager = {
       }
     }
     if (!cmp[g.s]) throw `Unexpected guard: ${JSON.stringify(g)}`
-    return cpm[g.s](ta, g.l, g.r)
+    return cmp[g.s](ta, g.l, g.r)
   }
 };
 

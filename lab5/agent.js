@@ -1,12 +1,7 @@
 const Msg = require('./msg');
 const readline = require('readline');
-const managerDT = require('./managerDT');
-const spDT = require('./singlePlayerDT');
-const RoleDistributor = require('./roleDistributor');
-let followingDT = require('./followingDT');
-const goalieDT = require('./goalieDT');
-const passDT = require('./passDT');
-const scoreDT = require('./scoreDT');
+const goalieTA = require('./goalieTA');
+const managerTA = require('./managerTA');
 const Flags = require('./flags');
 
 
@@ -20,10 +15,9 @@ class Agent {
     this.coordinates;
     this.vector;
     this.lastact;
-    this.role = role;
-    this.DT = null;
-    this.goalie = goalie;
-    this.teammates = [];
+    this.TA;
+	if (goalie == true) this.TA = goalieTA;
+	else this.TA = goalieTA; 
   }
   msgGot(msg) {
     let data = msg.toString('utf8');
@@ -39,55 +33,39 @@ class Agent {
   processMsg(msg) {
     let data = Msg.parseMsg(msg);
     if (!data) throw new Error("Parse error\n" + msg);
-    if (data.cmd == "init") this.initAgent(data.p);
+    //f (data.cmd == "init") this.initAgent(data.p);
     this.analyzeEnv(data.msg, data.cmd, data.p);
-  }
-  initAgent(p) {
-    if (p[0] == "r") this.position = "r";
-    if (p[1]) this.id = p[1];
-    if (this.role == "pass") {
-      this.DT = passDT;
-      this.DT.setTeamname(this.teamName);
-    }
-	if (this.role == "score") {
-      this.DT = scoreDT;
-      this.DT.setTeamname(this.teamName);
-    }
   }
   analyzeEnv(msg, cmd, p) {
     if (cmd == 'see') {
-      this.locateSelf(p);
-      if (this.run && this.DT) {
+      managerTA.setLocation(this.locateSelf(p));
+	  managerTA.setSee(p, this.teamName, this.position);
+		if(this.run && this.TA)
+	  		this.act = managerTA.getAction(p, this.TA, this.teamName, this.position);
+        //this.act = this.TA.state.command;
+      /*if (this.run && this.DT) {
         if (this.role == "pass") {
           this.DT.setMyCoordinates(this.coordinates);
           this.DT.setTeammateCoordinates(this.locateTeammate(p));
         }
         managerDT.getAction(this.DT, p);
         this.act = this.DT.state.command;
-      }
+      }*/
     }
 
     if (cmd == 'hear') {
+		
       console.log(p);
+	  managerTA.setHear(p);
+		
       if (p && p.length >= 3) {
         if (p[2] == "play_on") {
           this.run = true;
         }
 
-        if (this.run && p[2].startsWith("goal_")) {
+        if (p[2].startsWith("goal_")) {
           this.run = false;
           this.socketSend('move', this.initialCoordinates);
-          if (this.DT) {
-            this.DT.state.next = 0;
-            if (this.DT.state.heard_go) {
-              this.DT.state.heard_go = false;
-            }
-          }
-        }
-
-        if(p[1] != "self" && p[2] == "\"go\"" && this.role == "score" && this.DT){
-          this.DT.state.heard_go = true;
-          console.log("I HEARD GO");
         }
       }
     }
