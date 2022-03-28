@@ -2,6 +2,9 @@ const Msg = require('./msg');
 const readline = require('readline');
 const goalieTA = require('./goalieTA');
 const managerTA = require('./managerTA');
+const scoreDT = require('./singlePlayerDT');
+const managerDT = require('./managerDT');
+
 const Flags = require('./flags');
 
 
@@ -15,9 +18,10 @@ class Agent {
     this.coordinates;
     this.vector;
     this.lastact;
-    this.TA;
-	if (goalie == true) this.TA = goalieTA;
-	else this.TA = goalieTA; 
+    this.TA = goalieTA;
+	this.DT = scoreDT;
+	this.role = role;
+	//this.goalie = goalie;   
   }
   msgGot(msg) {
     let data = msg.toString('utf8');
@@ -38,19 +42,17 @@ class Agent {
   }
   analyzeEnv(msg, cmd, p) {
     if (cmd == 'see') {
-      managerTA.setLocation(this.locateSelf(p));
-	  managerTA.setSee(p, this.teamName, this.position);
-		if(this.run && this.TA)
-	  		this.act = managerTA.getAction(p, this.TA, this.teamName, this.position);
-        //this.act = this.TA.state.command;
-      /*if (this.run && this.DT) {
-        if (this.role == "pass") {
-          this.DT.setMyCoordinates(this.coordinates);
-          this.DT.setTeammateCoordinates(this.locateTeammate(p));
-        }
-        managerDT.getAction(this.DT, p);
+	if(this.role){
+		
+		managerDT.getAction(this.DT, p);
         this.act = this.DT.state.command;
-      }*/
+	}
+	else{
+		managerTA.setLocation(this.locateSelf(p));
+	  	managerTA.setSee(p, this.teamName, this.position);
+		this.act = managerTA.getAction(p, this.TA, this.teamName, this.position);
+	}
+  
     }
 
     if (cmd == 'hear') {

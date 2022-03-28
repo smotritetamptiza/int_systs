@@ -45,6 +45,7 @@ const TA = {
       if (taken.ball) state.variables.dist = taken.ball.dist
     },
     catch(taken, state) {
+		console.log("catch")
       if (!taken.ball) {
         state.next = true
         return
@@ -65,6 +66,7 @@ const TA = {
       state.next = true
     },
     kick(taken, state) {
+		console.log("kick")
       state.next = true
       if (!taken.ball) return
       let dist = taken.ball.dist
@@ -80,6 +82,7 @@ const TA = {
       return {n: "kick", v: 10, a: 45}
     },
     goBack(taken, state) {
+		console.log("go back")
       state.next = false
       let goalOwn = taken.goalOwn
       if (!goalOwn) return {n: "turn", v: 60}
@@ -92,6 +95,7 @@ const TA = {
       return {n: "dash", v: goalOwn.dist*2+20}
     },
     lookAround(taken, state) {
+		console.log("look around")
       state.next = false
       state.synch = "lookAround!"
       if (!state.local.look) state.local.look = "left"
@@ -108,6 +112,7 @@ const TA = {
       }
     },
     canIntercept(taken, state) {
+		console.log("can intercept")
       let ball = taken.runToBall
       let ballPrev = taken.ballPrev
       state.next = true
@@ -117,6 +122,7 @@ const TA = {
       return false
     },
     runToBall(taken, state) {
+		console.log("run to ball")
       state.next = false
       let ball = taken.ball
       if (!ball) return this.goBack(taken, state)
@@ -132,6 +138,7 @@ const TA = {
       return {n: "dash", v: 110}
     },
     ok(taken, state) {
+		console.log("ok")
       state.next = true
       return {n: "turn", v: 0}
     },

@@ -77,10 +77,12 @@ const Manager = {
     return this.execute(taken, ta)
   },
   executeState(taken, ta) {
+    //console.log("Current node "+ JSON.stringify(ta.nodes[ta.current]))
     let node = ta.nodes[ta.current]
     if (ta.actions[node]) {
       let action = ta.actions[node](taken, ta.state)
       if (!action && ta.state.next) return this.execute(taken, ta)
+      //console.log(action)
       return action
     }
     else {
@@ -89,6 +91,7 @@ const Manager = {
     }
   },
   executeEdge(taken, ta) {
+    //console.log("Current edge "+JSON.stringify(ta.edges[ta.current]))
     let edges = ta.edges[ta.current]
     for (let e of edges) {
       if (e.guard) {
@@ -104,7 +107,7 @@ const Manager = {
       if (e.assign) {
         for (let a of e.assign) {
           if (a.type == "timer") {
-            //if (!ta.state.timers[a.n]) throw `Unexpected timer: ${a.n}`
+            if (!(Object.keys(ta.state.timers)).includes(a.n)){ throw `Unexpected timer: ${a.n}`}
             ta.state.timers[a.n] = a.v
           } else {
             if (!ta.state.variables[a.n]) throw `Unexpected variable: ${a.n}`

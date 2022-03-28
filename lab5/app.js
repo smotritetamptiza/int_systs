@@ -26,6 +26,6 @@ rl.question("Enter team name: ", function (answer) {
 
 
 rl.on('close', async () => {
-  await initPlayer(teamName, coordinates1, false, null);
-  await initPlayer("not_" + teamName, "-50 0", true, null);
+  await initPlayer(teamName, coordinates1, false, true);
+  await initPlayer("not_" + teamName, "-50 0", true, false);
 })
