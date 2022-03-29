@@ -98,8 +98,8 @@ let Taken = {
           a: res.p[1]
         };
         let playerCoordinates;
-				for (let i = 1; i < flags.length; i++) {
-          if (!this.areOnTheLine(flags[0], this.coordinates, flags[i])) {
+		for (let i = 1; i < flags.length; i++) {
+          if (!this.areOnTheLine(flags[0], this.pos, flags[i])) {
             playerCoordinates = this.locateObject(flags[0], flags[i], player);
             if (playerCoordinates) {
               players.push({

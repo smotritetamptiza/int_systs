@@ -82,9 +82,9 @@ const TA = {
       return {n: "kick", v: 10, a: 45}
     },
     goBack(taken, state) {
-		console.log("go back")
       state.next = false
       let goalOwn = taken.goalOwn
+	  console.log("go back to " + goalOwn)
       if (!goalOwn) return {n: "turn", v: 60}
       if (Math.abs(goalOwn.angle) > 10)
         return {n: "turn", v: goalOwn.angle}

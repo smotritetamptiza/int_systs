@@ -28,6 +28,7 @@ class Agent {
     this.processMsg(data);
     this.sendCmd();
   }
+	
   setSocket(socket) {
     this.socket = socket;
   }
@@ -37,9 +38,13 @@ class Agent {
   processMsg(msg) {
     let data = Msg.parseMsg(msg);
     if (!data) throw new Error("Parse error\n" + msg);
-    //f (data.cmd == "init") this.initAgent(data.p);
+    if (data.cmd == "init") this.initAgent(data.p);
     this.analyzeEnv(data.msg, data.cmd, data.p);
   }
+  initAgent(p) {
+    if (p[0] == "r") this.position = "r";
+    if (p[1]) this.id = p[1];
+  }	
   analyzeEnv(msg, cmd, p) {
     if (cmd == 'see') {
 	if(this.role){
@@ -48,7 +53,8 @@ class Agent {
         this.act = this.DT.state.command;
 	}
 	else{
-		managerTA.setLocation(this.locateSelf(p));
+		this.locateSelf(p)
+		managerTA.setLocation(this.coordinates);
 	  	managerTA.setSee(p, this.teamName, this.position);
 		this.act = managerTA.getAction(p, this.TA, this.teamName, this.position);
 	}
