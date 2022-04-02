@@ -3,7 +3,7 @@ const Flags = require('./flags');
 let Taken = {
   setSee(input, team, side) {
     if (!input) throw "Can't see shit"
-    if (this.ball) this.ballPrev = this.ball
+    this.setMemory(); 	  
     this.flags = this.visibleFlags(input);
     if (this.pos && this.flags.length >= 2) {
       this.ball = this.locateGoal(input, this.flags, "b");
@@ -12,6 +12,7 @@ let Taken = {
       this.goalOwn = this.locateGoal(input, this.flags, "g" + side);
       this.teamOwn = this.locatePlayers(input, this.flags, (teamName) => team == teamName);
       this.team = this.locatePlayers(input, this.flags, (teamName) => team != teamName);
+		
     }
 	return this;
   },
@@ -32,13 +33,32 @@ let Taken = {
   time: 0,
   pos: null,
   hear: [],
-  ballPrev: null,
   ball: null,
   teamOwn: [],
   team: [],
   goalOwn: null,
   goal: null,
+  memories: {
+	ticks: 3,  
+  	prevTeamOwn: [],
+	prevTeam: [],
+	prevPos: [],
+	prevBall: [],
+  },
   flags: [],
+  setMemory(){
+	  if(this.memories.prevPos.length >= this.memories.ticks){
+	  	this.memories.prevTeamOwn.pop();
+	  	this.memories.prevTeam.pop();
+		this.memories.prevPos.pop();
+	  	this.memories.prevBall.pop();
+	  }
+  		if(this.teamOwn) this.memories.prevTeamOwn.unshift(this.teamOwn);
+	  	if(this.team) this.memories.prevTeam.unshift(this.team);
+		if(this.pos) this.memories.prevPos.unshift(this.pos);
+	  	if(this.ball) this.memories.prevBall.unshift(this.ball);
+	  //console.log(JSON.stringify(this.memories.prevTeam));
+  },	
   visibleFlags(p) {
     let flags = [];
     for (let res of p) {
@@ -194,11 +214,13 @@ let Taken = {
           };
 	if(!this.flags || !this.pos) return 90;
 	  let f2 = this.flags[0];
+	  if(this.flags[1]) f2 = this.flags[1];
+	  
 	  let v1 = {x: f1.x - this.pos.x, y: f1.y - this.pos.y};
 	  let v2 = {x: f2.x - this.pos.x, y: f2.y - this.pos.y};
 	  let angle = Math.acos((v1.x*v2.x+v1.y*v2.y)/(Math.sqrt(v1.x**2 + v1.y**2)*Math.sqrt(v2.x**2 + v2.y**2)));
 	  
-	  if((angle + f2.a).toFixed(0) == 0) return 180
+	  if((angle + f2.a).toFixed(0) == 0) return 180;
 	  return (angle + f2.a).toFixed(1);
   },
 };
