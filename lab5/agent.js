@@ -1,7 +1,8 @@
 const Msg = require('./msg');
 const readline = require('readline');
 const goalieTA = require('./goalieTA');
-const managerTA = require('./managerTA');
+const scoreTA = require('./scoreTA');
+const ManagerTA = require('./managerTA');
 const scoreDT = require('./singlePlayerDT');
 const managerDT = require('./managerDT');
 
@@ -18,17 +19,16 @@ class Agent {
     this.coordinates;
     this.vector;
     this.lastact;
-    this.TA = goalieTA;
-	this.DT = scoreDT;
-	this.role = role;
-	//this.goalie = goalie;   
+  	this.goalie = goalie;
+    this.TA = this.goalie ? goalieTA : scoreTA;
+    this.managerTA = new ManagerTA();
   }
   msgGot(msg) {
     let data = msg.toString('utf8');
     this.processMsg(data);
     this.sendCmd();
   }
-	
+
   setSocket(socket) {
     this.socket = socket;
   }
@@ -44,28 +44,22 @@ class Agent {
   initAgent(p) {
     if (p[0] == "r") this.position = "r";
     if (p[1]) this.id = p[1];
-  }	
+    this.managerTA.initTA(this.TA);
+  }
   analyzeEnv(msg, cmd, p) {
     if (cmd == 'see') {
-	if(this.role){
-		
-		managerDT.getAction(this.DT, p);
-        this.act = this.DT.state.command;
-	}
-	else{
-		this.locateSelf(p)
-		managerTA.setLocation(this.coordinates);
-	  	managerTA.setSee(p, this.teamName, this.position);
-		this.act = managerTA.getAction(p, this.TA, this.teamName, this.position);
-	}
-  
+      this.locateSelf(p)
+  		this.managerTA.setLocation(this.coordinates);
+  	  this.managerTA.setSee(p, this.teamName, this.position);
+      if (this.run) this.act = this.managerTA.getAction(p, this.TA,
+        this.teamName, this.position);
     }
 
     if (cmd == 'hear') {
-		
+
       console.log(p);
-	  managerTA.setHear(p);
-		
+	    this.managerTA.setHear(p);
+
       if (p && p.length >= 3) {
         if (p[2] == "play_on") {
           this.run = true;
@@ -74,6 +68,7 @@ class Agent {
         if (p[2].startsWith("goal_")) {
           this.run = false;
           this.socketSend('move', this.initialCoordinates);
+          this.managerTA.initTA(this.TA);
         }
       }
     }

@@ -1,22 +1,25 @@
 const Taken = require('./taken')
 const BEFORE_ACTION = "beforeAction"
-const Manager = {
+class Manager {
   setHear(input) {
     Taken.setHear(input)
-  },
+  }
   setSee(input, team, side) {
     Taken.setSee(input, team, side)
-  },
+  }
   setLocation(coords) {
     Taken.setLocation(coords)
-  },
+  }
+  initTA(ta) {
+    ta.actions.init(ta.state)
+  }
   getAction(input, ta, team, side) {
     let taken = Taken.setSee(input, team, side)
     this.incTimers(taken, ta)
     if (ta.actions[BEFORE_ACTION])
       ta.actions[BEFORE_ACTION](taken, ta.state)
     return this.execute(taken, ta)
-  },
+  }
   incTimers(taken, ta) {
     if (!this.lastTime) this.lastTime = 0
     if (taken.time > this.lastTime) {
@@ -24,7 +27,7 @@ const Manager = {
       for (let key in ta.state.timers)
         ta.state.timers[key] = ta.state.timers[key] + 1
     }
-  },
+  }
   execute(taken, ta) {
     if (ta.state.synch) {
       let cond = ta.state.synch.substr(0, ta.state.synch.length-1)
@@ -37,7 +40,7 @@ const Manager = {
     if (ta.nodes[ta.current]) return this.executeState(taken, ta)
     if (ta.edges[ta.current]) return this.executeEdge(taken, ta)
     throw `Unexpected state: ${ta.current}`
-  },
+  }
   nextState(taken, ta) {
     let node = ta.nodes[ta.current]
     for (let name of node.e) {
@@ -68,14 +71,14 @@ const Manager = {
         return this.execute(taken, ta)
       }
     }
-  },
+  }
   nextEdge(taken, ta) {
     let arr = ta.current.split("_")
     let node = arr[1]
     ta.current = node
     ta.state.next = false
     return this.execute(taken, ta)
-  },
+  }
   executeState(taken, ta) {
     //console.log("Current node "+ JSON.stringify(ta.nodes[ta.current]))
     let node = ta.nodes[ta.current]
@@ -89,7 +92,7 @@ const Manager = {
       ta.state.next = true
       return this.execute(taken, ta)
     }
-  },
+  }
   executeEdge(taken, ta) {
     //console.log("Current edge "+JSON.stringify(ta.edges[ta.current]))
     let edges = ta.edges[ta.current]
@@ -127,7 +130,7 @@ const Manager = {
     }
     ta.state.next = true
     return this.execute(taken, ta)
-  },
+  }
   guard(taken, ta, g) {
     function taStateObject(o, ta) {
       if (typeof o == "object") return o.v ? ta.state.variables[o.v] :

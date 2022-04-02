@@ -4,16 +4,16 @@ let Taken = {
   setSee(input, team, side) {
     if (!input) throw "Can't see shit"
     if (this.ball) this.ballPrev = this.ball
-    let flags = this.visibleFlags(input);
-    if (this.pos && flags.length >= 2) {
-      this.ball = this.locateGoal(input, flags, "b");
+    this.flags = this.visibleFlags(input);
+    if (this.pos && this.flags.length >= 2) {
+      this.ball = this.locateGoal(input, this.flags, "b");
       let oppSide = side == "l" ? "r" : "l";
-      this.goal = this.locateGoal(input, flags, "g" + oppSide);
-      this.goalOwn = this.locateGoal(input, flags, "g" + side);
-      this.teamOwn = this.locatePlayers(input, flags, (teamName) => team == teamName);
-      this.team = this.locatePlayers(input, flags, (teamName) => team != teamName);
+      this.goal = this.locateGoal(input, this.flags, "g" + oppSide);
+      this.goalOwn = this.locateGoal(input, this.flags, "g" + side);
+      this.teamOwn = this.locatePlayers(input, this.flags, (teamName) => team == teamName);
+      this.team = this.locatePlayers(input, this.flags, (teamName) => team != teamName);
     }
-	return this;  
+	return this;
   },
   setLocation(coords) {
     if (!coords) return
@@ -38,6 +38,7 @@ let Taken = {
   team: [],
   goalOwn: null,
   goal: null,
+  flags: [],
   visibleFlags(p) {
     let flags = [];
     for (let res of p) {
@@ -45,6 +46,7 @@ let Taken = {
         let f_name = res.cmd.p.join('');
         try {
           let f = {
+            n: f_name,
             x: Flags[f_name].x,
             y: Flags[f_name].y,
             d: res.p[0],
