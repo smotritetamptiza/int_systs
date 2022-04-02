@@ -11,7 +11,12 @@ class Manager {
     Taken.setLocation(coords)
   }
   initTA(ta) {
+    ta.current = "start"
     ta.actions.init(ta.state)
+    if  (ta.state.local.goalie) {
+      ta.current = "kick_start"
+      ta.state.next = false
+    }
   }
   getAction(input, ta, team, side) {
     let taken = Taken.setSee(input, team, side)

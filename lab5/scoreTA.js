@@ -9,9 +9,9 @@ const TA = {
   },
   nodes: {
     start: { n: "start", e: ["goalVisible", "start"] },
-    goalVisible: { n: "goalVisible", e: ["flagClose", "ballClose", "goalVisible"] },
-    flagClose: { n: "flagClose", e: ["flagReached", "flagClose"] },
-    ballClose: { n: "ballClose", e: ["ballReached", "ballClose"] },
+    goalVisible: { n: "goalVisible", e: ["flagClose", "ballClose", "start"] },
+    flagClose: { n: "flagClose", e: ["flagReached", "start"] },
+    ballClose: { n: "ballClose", e: ["ballReached", "start"] },
     flagReached: { n: "flagReached", e: ["start"] },
     ballReached: { n: "ballReached", e: ["start"] },
   },
@@ -22,17 +22,18 @@ const TA = {
                                       {s: "lt", l: {v: "dist"}, r: 10}]}],
     goalVisible_ballClose: [{ guard: [{s: "eq", l: {v: "action"}, r: "kick"},
                                       {s: "lt", l: {v: "dist"}, r: 5}]}],
-    goalVisible_goalVisible: [{ synch: "run!" }],
+    goalVisible_start: [{ synch: "run!" }],
     flagClose_flagReached: [{ guard: [{s: "lt", l: {v: "dist"}, r: 3}]}],
-    flagClose_flagClose: [{ synch: "run!" }],
+    flagClose_start: [{ synch: "run!" }],
     ballClose_ballReached: [{ guard: [{s: "lt", l: {v: "dist"}, r: 0.5}]}],
-    ballClose_ballClose: [{ synch: "run!" }],
+    ballClose_start: [{ synch: "run!" }],
     flagReached_start: [{ synch: "nextAction!" }],
     ballReached_start: [{ synch: "kickBall!" }],
 
   },
   actions: {
     init(state) {
+      state.next = true
       state.local.goalie = false
       state.local.sequence = [{act: "flag", fl: "gl"},
       {act: "kick", fl: "b", goal: "gr"}]
@@ -75,9 +76,12 @@ const TA = {
         }
       }
       if (state.variables.action == "kick") {
-        angle = taken.ball.angle
-        dist = taken.ball.dist
+        if (taken.ball) {
+          angle = taken.ball.angle
+          dist = taken.ball.dist
+        }
       }
+      if (angle == undefined) return {n: "turn", v: 180}
       if (angle && Math.abs(angle) > 5) return {n: "turn", v: angle}
       return {n: "dash", v: dist ? dist*2+20 : 100 }
     },
