@@ -186,6 +186,21 @@ let Taken = {
     }
     return this.threeFlagCoordinates(flag1, flag2, flag3);
   },
+  calculateAngle(f_name){
+  	let f1 = {
+            n: f_name,
+            x: Flags[f_name].x,
+            y: Flags[f_name].y
+          };
+	if(!this.flags || !this.pos) return 90;
+	  let f2 = this.flags[0];
+	  let v1 = {x: f1.x - this.pos.x, y: f1.y - this.pos.y};
+	  let v2 = {x: f2.x - this.pos.x, y: f2.y - this.pos.y};
+	  let angle = Math.acos((v1.x*v2.x+v1.y*v2.y)/(Math.sqrt(v1.x**2 + v1.y**2)*Math.sqrt(v2.x**2 + v2.y**2)));
+	  
+	  if((angle + f2.a).toFixed(0) == 0) return 180
+	  return (angle + f2.a).toFixed(1);
+  },
 };
 
 module.exports = Taken;

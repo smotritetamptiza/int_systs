@@ -96,24 +96,17 @@ const TA = {
     },
     lookAround(taken, state) {
 		console.log("look around")
-      state.next = false
-      state.synch = "lookAround!"
-      if (!state.local.look) state.local.look = "left"
-      switch (state.local.look) {
-        case "left": state.local.look = "center"; return {n: "turn", v: -60}
-        case "center": state.local.look = "right"; return {n: "turn", v: 60}
-        case "right": state.local.look = "back"; return {n: "turn", v: 60}
-        case "back":
-          state.local.look = "left"
-          state.next = true
-          state.synch = undefined
-          return {n: "turn", v: -60}
-        default: state.next = true
-      }
+      state.next = true
+      if (state.variables.action == "flag") {
+          
+         let angle = taken.calculateAngle(state.variables.flag)
+         return {n: "turn", v: angle}
+       }
+       return {n: "turn", v: 90}
     },
     canIntercept(taken, state) {
 		console.log("can intercept")
-      let ball = taken.runToBall
+      let ball = taken.ball // taken.runToBall
       let ballPrev = taken.ballPrev
       state.next = true
       if (!ball) return false
