@@ -4,6 +4,7 @@ class Taken {
   constructor() {
     this.time = 0
     this.pos = null
+    this.side = "l"
     this.hear = []
     this.ball = null
     this.teamOwn = []
@@ -20,6 +21,7 @@ class Taken {
     this.flags = []
   }
   setSee(input, team, side) {
+    this.side = side
     if (!input) throw "Can't see shit"
     this.setMemory();
     this.flags = this.visibleFlags(input);
@@ -209,21 +211,34 @@ class Taken {
     return this.threeFlagCoordinates(flag1, flag2, flag3);
   }
   calculateAngle(f_name){
-  	let f1 = {
-            n: f_name,
-            x: Flags[f_name].x,
-            y: Flags[f_name].y
-          };
-	if(!this.flags || !this.pos) return 90;
-	  let f2 = this.flags[0];
-	  //if(this.flags[1]) f2 = this.flags[1];
+    return this.calculateAngleFromCoords(Flags[f_name].x, Flags[f_name].y)
+  }
+  calculateAngleFromCoords(x, y) {
+      if(!this.flags || !this.pos) return 90;
+  	  let f2 = this.flags[0];
+  	  //if(this.flags[1]) f2 = this.flags[1];
+  	  let v1 = {x: x - this.pos.x, y: y - this.pos.y};
+  	  let v2 = {x: f2.x - this.pos.x, y: f2.y - this.pos.y};
+  	  let angle = Math.acos((v1.x*v2.x+v1.y*v2.y)/(Math.sqrt(v1.x**2 + v1.y**2)*Math.sqrt(v2.x**2 + v2.y**2)));
 
-	  let v1 = {x: f1.x - this.pos.x, y: f1.y - this.pos.y};
-	  let v2 = {x: f2.x - this.pos.x, y: f2.y - this.pos.y};
-	  let angle = Math.acos((v1.x*v2.x+v1.y*v2.y)/(Math.sqrt(v1.x**2 + v1.y**2)*Math.sqrt(v2.x**2 + v2.y**2)));
+  	  if((angle + f2.a).toFixed(0) == 0) return 180;
+  	  return (angle + f2.a).toFixed(1);
+  }
+  interceptionPoint() {
+    let k1 = (Flags["g"+this.side].y - this.ball.y)/(Flags["g"+this.side].x - this.ball.x)
+    let b1 = k1*this.ball.x + this.ball.y
+    let k2 = (Flags["fc"].y - this.pos.y)/(Flags["fc"].x - this.pos.x)
+    let b2 = k2*this.pos.x + this.pos.y
+    let x_intercept = (b2 - b1) / (k1 - k2)
+    let y_intercept = k1 * x_intercept + b1
+    if (isNaN(x_intercept) || isNaN(y_intercept)) return
+    return {
+      x: x_intercept,
+      y: y_intercept,
+      dist: Math.sqrt((this.pos.x - x_intercept)**2 + (this.pos.y - y_intercept)**2),
+      angle: calculateAngleFromCoords(x_intercept, y_intercept)
+    }
 
-	  if((angle + f2.a).toFixed(0) == 0) return 180;
-	  return (angle + f2.a).toFixed(1);
   }
 };
 
