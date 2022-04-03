@@ -32,11 +32,13 @@ const TA = {
 
   },
   actions: {
-    init(state) {
+    init(state, position) {
+      let side = (position == "l" ? "r" : "l")
+      console.log(position, side)
       state.next = true
       state.local.goalie = false
-      state.local.sequence = [{act: "flag", fl: "gl"}, /*{act: "flag", fl: "fplc"}, {act: "flag", fl: "fcb"}, {act: "flag", fl: "frb"}, {act: "flag", fl: "fc"},*/
-      {act: "kick", fl: "b", goal: "gr"}]
+      state.local.sequence = [{act: "flag", fl: "g" + position}, /*{act: "flag", fl: "fplc"}, {act: "flag", fl: "fcb"}, {act: "flag", fl: "frb"}, {act: "flag", fl: "fc"},*/
+      {act: "kick", fl: "b", goal: "g" + side}]
       state.local.nextAction = 0
 //      state.local.catch = 0
     },

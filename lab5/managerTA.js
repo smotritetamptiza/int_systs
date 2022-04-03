@@ -13,9 +13,9 @@ class Manager {
   setLocation(coords) {
     this.taken.setLocation(coords)
   }
-  initTA(ta) {
+  initTA(ta, position) {
     ta.current = "start"
-    ta.actions.init(ta.state)
+    ta.actions.init(ta.state, position)
     if  (ta.state.local.goalie) {
       ta.current = "kick_faceCenter"
       ta.state.next = false

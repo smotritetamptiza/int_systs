@@ -236,7 +236,7 @@ class Taken {
       x: x_intercept,
       y: y_intercept,
       dist: Math.sqrt((this.pos.x - x_intercept)**2 + (this.pos.y - y_intercept)**2),
-      angle: calculateAngleFromCoords(x_intercept, y_intercept)
+      angle: this.calculateAngleFromCoords(x_intercept, y_intercept)
     }
 
   }

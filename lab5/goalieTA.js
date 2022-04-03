@@ -39,7 +39,7 @@ const TA = {
                         assign: [{ n: "t", v: 0, type: "timer" }] }]
   },
   actions: {
-    init(state) {
+    init(state, position) {
       state.local.goalie = true
       state.local.catch = 0
       state.local.kick = 0

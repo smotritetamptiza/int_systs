@@ -44,7 +44,7 @@ class Agent {
   initAgent(p) {
     if (p[0] == "r") this.position = "r";
     if (p[1]) this.id = p[1];
-    this.managerTA.initTA(this.TA);
+    this.managerTA.initTA(this.TA, this.position);
   }
   analyzeEnv(msg, cmd, p) {
     if (cmd == 'see') {
