@@ -56,7 +56,7 @@ const TA = {
       }
     },
     seesGoal(taken, state) {
-      console.log("seesGoal?")
+      //console.log("seesGoal?")
       if (state.variables.action == "flag") {
         let currFlag = taken.flags.filter(fl => fl.n == state.variables.flag)
         return currFlag.length > 0
@@ -88,7 +88,7 @@ const TA = {
     nextAction(taken, state) {
       state.local.nextAction++
       state.next = true
-      console.log("next action " + state.local.nextAction);
+      //console.log("next action " + state.local.nextAction);
     },
     kickBall(taken, state) {
       state.next = true
@@ -97,7 +97,7 @@ const TA = {
       return { n: "kick", v: "100", a: taken.goal.angle}
     },
     lookAround(taken, state) {
-		  console.log("look around")
+		  //console.log("look around")
       state.next = true
        if (state.variables.action == "flag") {
          let angle = taken.calculateAngle(state.variables.flag)
@@ -107,7 +107,7 @@ const TA = {
 
     },
     ok(taken, state) {
-		console.log("ok")
+		//console.log("ok")
       state.next = true
       return {n: "turn", v: 0}
     },

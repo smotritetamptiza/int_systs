@@ -17,7 +17,7 @@ class Manager {
     ta.current = "start"
     ta.actions.init(ta.state)
     if  (ta.state.local.goalie) {
-      ta.current = "kick_start"
+      ta.current = "kick_faceCenter"
       ta.state.next = false
     }
   }
@@ -70,7 +70,7 @@ class Manager {
           if (e.synch.endsWith("?")) {
             let cond = e.synch.substr(0, e.synch.length-1)
             if (!ta.actions[cond]) throw `Unexpected synch: ${e.synch}`
-            console.log(`Synch[${taken.time}]: ${e.synch}`);
+            //console.log(`Synch[${taken.time}]: ${e.synch}`);
             if (!ta.actions[cond](taken, ta.state)) continue
           }
         }
