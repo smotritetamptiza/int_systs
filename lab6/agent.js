@@ -20,7 +20,7 @@ class Agent {
     this.vector;
     this.lastact;
   	this.goalie = goalie;
-    this.TA = this.goalie ? goalieTA : scoreTA;
+    this.TA = this.goalie ? new goalieTA() : new scoreTA();
     this.managerTA = new ManagerTA();
   }
   msgGot(msg) {
