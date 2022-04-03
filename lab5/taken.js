@@ -1,10 +1,10 @@
 const Flags = require('./flags');
 
 class Taken {
-  constructor() {
+  constructor(side) {
     this.time = 0
     this.pos = null
-    this.side = "l"
+    this.side = side
     this.hear = []
     this.ball = null
     this.teamOwn = []
@@ -20,16 +20,15 @@ class Taken {
     }
     this.flags = []
   }
-  setSee(input, team, side) {
-    this.side = side
+  setSee(input, team) {
     if (!input) throw "Can't see shit"
     this.setMemory();
     this.flags = this.visibleFlags(input);
     if (this.pos && this.flags.length >= 2) {
       this.ball = this.locateGoal(input, this.flags, "b");
-      let oppSide = side == "l" ? "r" : "l";
+      let oppSide = this.side == "l" ? "r" : "l";
       this.goal = this.locateGoal(input, this.flags, "g" + oppSide);
-      this.goalOwn = this.locateGoal(input, this.flags, "g" + side);
+      this.goalOwn = this.locateGoal(input, this.flags, "g" + this.side);
       this.teamOwn = this.locatePlayers(input, this.flags, (teamName) => team == teamName);
       this.team = this.locatePlayers(input, this.flags, (teamName) => team != teamName);
 

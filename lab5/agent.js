@@ -19,8 +19,8 @@ class Agent {
     this.vector;
     this.lastact;
   	this.goalie = goalie;
-     this.TA = this.goalie ? new goalieTA() : new scoreTA();
-    this.managerTA = new ManagerTA();
+    this.TA = this.goalie ? new goalieTA() : new scoreTA();
+    this.managerTA = null;
   }
   msgGot(msg) {
     let data = msg.toString('utf8');
@@ -43,6 +43,7 @@ class Agent {
   initAgent(p) {
     if (p[0] == "r") this.position = "r";
     if (p[1]) this.id = p[1];
+    this.managerTA = new ManagerTA(this.position);
     this.managerTA.initTA(this.TA, this.position);
   }
   analyzeEnv(msg, cmd, p) {
