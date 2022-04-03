@@ -50,7 +50,7 @@ class Agent {
     if (cmd == 'see') {
       this.locateSelf(p)
   		this.managerTA.setLocation(this.coordinates);
-  	  this.managerTA.setSee(p, this.teamName, this.position);
+  	  this.managerTA.setSee(p, this.teamName);
       if (this.run) this.act = this.managerTA.getAction(p, this.TA,
         this.teamName, this.position);
     }
@@ -68,7 +68,7 @@ class Agent {
         if (p[2].startsWith("goal_")) {
           this.run = false;
           this.socketSend('move', this.initialCoordinates);
-          this.managerTA.initTA(this.TA);
+          this.managerTA.initTA(this.TA, this.position);
         }
       }
     }
