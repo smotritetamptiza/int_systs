@@ -3,8 +3,7 @@ const readline = require('readline');
 const goalieTA = require('./goalieTA');
 const scoreTA = require('./scoreTA');
 const ManagerTA = require('./managerTA');
-const scoreDT = require('./singlePlayerDT');
-const managerDT = require('./managerDT');
+
 
 const Flags = require('./flags');
 
@@ -20,7 +19,7 @@ class Agent {
     this.vector;
     this.lastact;
   	this.goalie = goalie;
-    this.TA = this.goalie ? goalieTA : scoreTA;
+     this.TA = this.goalie ? new goalieTA() : new scoreTA();
     this.managerTA = new ManagerTA();
   }
   msgGot(msg) {

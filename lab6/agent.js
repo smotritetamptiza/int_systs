@@ -3,8 +3,7 @@ const readline = require('readline');
 const goalieTA = require('./goalieTA');
 const scoreTA = require('./scoreTA');
 const ManagerTA = require('./managerTA');
-const scoreDT = require('./singlePlayerDT');
-const managerDT = require('./managerDT');
+
 
 const Flags = require('./flags');
 

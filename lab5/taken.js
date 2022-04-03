@@ -211,6 +211,7 @@ class Taken {
     return this.threeFlagCoordinates(flag1, flag2, flag3);
   }
   calculateAngle(f_name){
+	  if(!Flags[f_name]) console.log(f_name);
     return this.calculateAngleFromCoords(Flags[f_name].x, Flags[f_name].y)
   }
   calculateAngleFromCoords(x, y) {
