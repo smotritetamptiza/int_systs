@@ -90,6 +90,7 @@ const TA = {
         return {n: "turn", v: goalOwn.angle}
       if (goalOwn.dist < 2) {
         state.next = true
+        let angle = taken.calculateAngle("fc")
         return {n: "turn", v: 180}
       }
       return {n: "dash", v: goalOwn.dist*2+20}
@@ -98,7 +99,6 @@ const TA = {
 		console.log("look around")
       state.next = true
       if (state.variables.action == "flag") {
-          
          let angle = taken.calculateAngle(state.variables.flag)
          return {n: "turn", v: angle}
        }

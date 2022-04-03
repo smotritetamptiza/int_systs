@@ -35,7 +35,7 @@ const TA = {
     init(state) {
       state.next = true
       state.local.goalie = false
-      state.local.sequence = [{act: "flag", fl: "gl"}, {act: "flag", fl: "fplc"}, {act: "flag", fl: "fcb"}, {act: "flag", fl: "frb"}, {act: "flag", fl: "fc"}, 
+      state.local.sequence = [{act: "flag", fl: "gl"}, /*{act: "flag", fl: "fplc"}, {act: "flag", fl: "fcb"}, {act: "flag", fl: "frb"}, {act: "flag", fl: "fc"},*/
       {act: "kick", fl: "b", goal: "gr"}]
       state.local.nextAction = 0
 //      state.local.catch = 0
@@ -100,12 +100,11 @@ const TA = {
 		  console.log("look around")
       state.next = true
        if (state.variables.action == "flag") {
-          
          let angle = taken.calculateAngle(state.variables.flag)
          return {n: "turn", v: angle}
        }
        return {n: "turn", v: 90}
-      
+
     },
     ok(taken, state) {
 		console.log("ok")

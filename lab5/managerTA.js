@@ -1,14 +1,17 @@
 const Taken = require('./taken')
 const BEFORE_ACTION = "beforeAction"
 class Manager {
+  constructor () {
+    this.taken = new Taken()
+  }
   setHear(input) {
-    Taken.setHear(input)
+    this.taken.setHear(input)
   }
   setSee(input, team, side) {
-    Taken.setSee(input, team, side)
+    this.taken.setSee(input, team, side)
   }
   setLocation(coords) {
-    Taken.setLocation(coords)
+    this.taken.setLocation(coords)
   }
   initTA(ta) {
     ta.current = "start"
@@ -19,7 +22,7 @@ class Manager {
     }
   }
   getAction(input, ta, team, side) {
-    let taken = Taken.setSee(input, team, side)
+    let taken = this.taken.setSee(input, team, side)
     this.incTimers(taken, ta)
     if (ta.actions[BEFORE_ACTION])
       ta.actions[BEFORE_ACTION](taken, ta.state)

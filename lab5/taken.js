@@ -1,9 +1,27 @@
 const Flags = require('./flags');
 
-let Taken = {
+class Taken {
+  constructor() {
+    this.time = 0
+    this.pos = null
+    this.hear = []
+    this.ball = null
+    this.teamOwn = []
+    this.team = []
+    this.goalOwn = null
+    this.goal = null
+    this.memories = {
+      ticks: 3,
+      prevTeamOwn: [],
+      prevTeam: [],
+      prevPos: [],
+      prevBall: [],
+    }
+    this.flags = []
+  }
   setSee(input, team, side) {
     if (!input) throw "Can't see shit"
-    this.setMemory(); 	  
+    this.setMemory();
     this.flags = this.visibleFlags(input);
     if (this.pos && this.flags.length >= 2) {
       this.ball = this.locateGoal(input, this.flags, "b");
@@ -12,40 +30,24 @@ let Taken = {
       this.goalOwn = this.locateGoal(input, this.flags, "g" + side);
       this.teamOwn = this.locatePlayers(input, this.flags, (teamName) => team == teamName);
       this.team = this.locatePlayers(input, this.flags, (teamName) => team != teamName);
-		
+
     }
 	return this;
-  },
+  }
   setLocation(coords) {
     if (!coords) return
     this.pos = {
       x: Number(coords.x),
       y: Number(coords.y)
     };
-  },
+  }
   setHear(input) {
     this.hear.unshift({
       time: input[0],
       who: input[1],
       msg: input[2]
     })
-  },
-  time: 0,
-  pos: null,
-  hear: [],
-  ball: null,
-  teamOwn: [],
-  team: [],
-  goalOwn: null,
-  goal: null,
-  memories: {
-	ticks: 3,  
-  	prevTeamOwn: [],
-	prevTeam: [],
-	prevPos: [],
-	prevBall: [],
-  },
-  flags: [],
+  }
   setMemory(){
 	  if(this.memories.prevPos.length >= this.memories.ticks){
 	  	this.memories.prevTeamOwn.pop();
@@ -58,7 +60,7 @@ let Taken = {
 		if(this.pos) this.memories.prevPos.unshift(this.pos);
 	  	if(this.ball) this.memories.prevBall.unshift(this.ball);
 	  //console.log(JSON.stringify(this.memories.prevTeam));
-  },	
+  }
   visibleFlags(p) {
     let flags = [];
     for (let res of p) {
@@ -80,7 +82,7 @@ let Taken = {
       }
     }
     return flags;
-  },
+  }
   locateGoal(p, flags, obj) {
     let goal, goalCoordinates;
     for (let res of p) {
@@ -109,7 +111,7 @@ let Taken = {
       console.log("couldn't locate goal");
       return;
     }
-  },
+  }
   locatePlayers(p, flags, teamNameCmp) {
     let players = [];
     for (let res of p) {
@@ -138,7 +140,7 @@ let Taken = {
       }
     }
     return players;
-  },
+  }
   areOnTheLine(p1, p2, p3) {
     if (p1.x == p2.x && p1.x == p3.x) {
       return true;
@@ -152,7 +154,7 @@ let Taken = {
       return true;
     }
     return false;
-  },
+  }
   threeFlagCoordinates(f1, f2, f3) {
     let x = 0;
     let y = 0;
@@ -179,13 +181,13 @@ let Taken = {
       x = alpha1 * y + beta1;
     }
     return { x: x.toFixed(2), y: y.toFixed(2) };
-  },
+  }
   calculateDistanceAngle(f, a) {
     return Math.sqrt(f.d**2 + a.d**2 - 2*f.d*a.d*Math.cos(Math.abs(f.a - a.a) / 180 * Math.PI));
-  },
+  }
   calculateDistanceCoords(c1, c2){
   	return Math.sqrt((c1.x - c2.x)**2 + (c1.y - c2.y)**2);
-  },
+  }
   locateObject(f1, f2, object) {
     let da1 = this.calculateDistanceAngle(f1, object);
     let da2 = this.calculateDistanceAngle(f2, object);
@@ -205,7 +207,7 @@ let Taken = {
       d: object.d
     }
     return this.threeFlagCoordinates(flag1, flag2, flag3);
-  },
+  }
   calculateAngle(f_name){
   	let f1 = {
             n: f_name,
@@ -214,15 +216,15 @@ let Taken = {
           };
 	if(!this.flags || !this.pos) return 90;
 	  let f2 = this.flags[0];
-	  if(this.flags[1]) f2 = this.flags[1];
-	  
+	  //if(this.flags[1]) f2 = this.flags[1];
+
 	  let v1 = {x: f1.x - this.pos.x, y: f1.y - this.pos.y};
 	  let v2 = {x: f2.x - this.pos.x, y: f2.y - this.pos.y};
 	  let angle = Math.acos((v1.x*v2.x+v1.y*v2.y)/(Math.sqrt(v1.x**2 + v1.y**2)*Math.sqrt(v2.x**2 + v2.y**2)));
-	  
+
 	  if((angle + f2.a).toFixed(0) == 0) return 180;
 	  return (angle + f2.a).toFixed(1);
-  },
+  }
 };
 
 module.exports = Taken;
