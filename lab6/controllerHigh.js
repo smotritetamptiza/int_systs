@@ -17,7 +17,7 @@ const CTRL_HIGH = {
 	},
 	defendGoal(input){
 		if(input.ball){
-			const close = input.closest("b")
+			const close = input.closestToBall(true)
 			if((close[0] && close[0].dist + 1 > input.ball.dist) || !close[0]){
 				this.last = "defend"
 				if(Math.abs(input.ball.angle) > 5)
@@ -28,3 +28,4 @@ const CTRL_HIGH = {
 	},
 }
 module.exports = CTRL_HIGH
+

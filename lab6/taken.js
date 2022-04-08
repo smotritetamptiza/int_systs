@@ -90,8 +90,8 @@ class Taken {
     for (let res of p) {
       if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && res.cmd.p.join('') == obj) {
         goal = {
-          d: res.p[0],
-          a: res.p[1]
+          dist: res.p[0],
+          angle: res.p[1]
         };
         break;
       }
@@ -240,6 +240,33 @@ class Taken {
     }
 
   }
+  closestToBall(myTeam) {
+        if (this.ball) {
+            
+            const distanceList = []
+            let playersList = []
+            if (myTeam) playersList = this.teamOwn
+			else playersList = this.team
+			let ballCoords = {x: this.ball.x, y: this.ball.y};
+            playersList.forEach((p) => {
+			 let playerCoords = {x: p.x, y: p.y};
+              dist = calculateDistanceCoords
+              if (playerCoords) {
+                distanceList.push({
+                  coords: playerCoords,
+                  dist: calculateDistanceCoords(playerCoords, ballCoords)
+                })
+              }
+            })
+			  
+            distanceList.sort((dist1, dist2) => {
+              return dist1.dist - dist2.dist
+            })
+            return  distanceList
+          
+        }
+        return []
+      }
 };
 
 module.exports = Taken;

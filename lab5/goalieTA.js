@@ -57,7 +57,7 @@ class TA {
         let angle = taken.ball ? taken.ball.angle : taken.ballPrev.angle
         let dist = taken.ball ? taken.ball.dist : taken.ballPrev.dist
         state.next = false
-        if (dist > 0.5) {
+        if (dist > 1) {
           if (state.local.goalie) {
             if (state.local.catch < 3) {
               state.local.catch++
@@ -146,10 +146,10 @@ class TA {
         /* ANOTHER WEIRD CALCULATION */
         let intPoint = taken.interceptionPoint();
         if (!intPoint || ball.dist <= 5) {
-          if (Math.abs(ball.angle) > 5 && ball.dist > 5) return {n: "turn", v: ball.angle}
-          return {n: "dash", v: ball.dist*10+10}
+          if (Math.abs(ball.angle) > 7 && ball.dist > 5) return {n: "turn", v: ball.angle}
+          return {n: "dash", v: ball.dist*10+20}
         }
-        if (Math.abs(intPoint.angle) > 5) return {n: "turn",
+        if (Math.abs(intPoint.angle) > 7) return {n: "turn",
         v: intPoint.angle + Math.sign(intPoint.angle) * 2.5}
         return {n: "dash", v: 100}
         /*****************************/

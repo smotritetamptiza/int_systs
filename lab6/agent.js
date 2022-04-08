@@ -3,7 +3,10 @@ const readline = require('readline');
 const goalieTA = require('./goalieTA');
 const scoreTA = require('./scoreTA');
 const ManagerTA = require('./managerTA');
-
+const CtrlLow = require('./controllerLow');
+const CtrlMiddle = require('./controllerMiddle');
+const CtrlHigh = require('./controllerHigh');
+const Taken = require('./taken');
 
 const Flags = require('./flags');
 
@@ -19,15 +22,15 @@ class Agent {
     this.vector;
     this.lastact;
   	this.goalie = goalie;
-    this.TA = this.goalie ? new goalieTA() : new scoreTA();
-    this.managerTA = new ManagerTA();
+    this.taken = new Taken();
+    this.controller = CtrlLow;
+    
   }
   msgGot(msg) {
     let data = msg.toString('utf8');
     this.processMsg(data);
     this.sendCmd();
   }
-
   setSocket(socket) {
     this.socket = socket;
   }
@@ -43,35 +46,48 @@ class Agent {
   initAgent(p) {
     if (p[0] == "r") this.position = "r";
     if (p[1]) this.id = p[1];
-    this.managerTA.initTA(this.TA);
+    //this.managerTA.initTA(this.TA);
   }
   analyzeEnv(msg, cmd, p) {
-    if (cmd == 'see') {
-      this.locateSelf(p)
-  		this.managerTA.setLocation(this.coordinates);
-  	  this.managerTA.setSee(p, this.teamName, this.position);
-      if (this.run) this.act = this.managerTA.getAction(p, this.TA,
-        this.teamName, this.position);
-    }
-
+    
+    /*
+    if (cmd === 'see' && this.run) {
+      if (this.id < 11) {
+        this.act = CtrlLowPlayer.execute(p, [CtrlMiddlePlayer, CtrlHighPlayer], this.teamName, this.position, this.id)
+      } else {
+        this.act = CtrlLowGoalie.execute(p, [CtrlMiddleGoalie, CtrlHighGoalie], this.teamName, this.position, this.id)
+      }
+      */
     if (cmd == 'hear') {
-
-      console.log(p);
-	    this.managerTA.setHear(p);
-
+	    this.taken.setHear(p);
       if (p && p.length >= 3) {
         if (p[2] == "play_on") {
           this.run = true;
         }
-
         if (p[2].startsWith("goal_")) {
           this.run = false;
           this.socketSend('move', this.initialCoordinates);
-          this.managerTA.initTA(this.TA);
+          //this.managerTA.initTA(this.TA);
         }
       }
+      
     }
-  }
+    
+    
+    if (cmd == 'see') {
+      
+      this.locateSelf(p);
+  		this.taken.setLocation(this.coordinates);
+  	  this.taken.setSee(p, this.teamName, this.position);
+      
+      if (this.run) this.act = this.controller.execute(this.taken, [CtrlMiddle, CtrlHigh]);
+      //if (this.run) this.act = this.managerTA.getAction(p, this.TA, this.teamName, this.position);
+    }
+
+   
+    
+    
+  } 
   sendCmd() {
     if (this.run) {
       if (this.act) {

@@ -18,7 +18,7 @@ const CTRL_MIDDLE = {
 		if(next){ // call for next level
 			const command = next.execute(input, controllers.slice(1))
 			if(command) return command
-			if(input.newAction) this.action = input.new Action
+			if(input.newAction) this.action = input.newAction
 			return input.cmd
 		}
 	},
@@ -37,7 +37,7 @@ const CTRL_MIDDLE = {
 	seekBall(input){
 		if(input.flags[this.turnData]){
 			if(Math.abs(input.flags[this.turnData].angle) > 10)
-				return return {n: "turn", v: input.flags[this.turnData].angle}
+				return {n: "turn", v: input.flags[this.turnData].angle}
 			if(this.turnData == "ft0") this.turnData = "fb0"
 			else
 			if(this.turnData == "fb0"){

@@ -37,7 +37,7 @@ class TA {
         let side = (position == "l" ? "r" : "l")
         state.next = true
         state.local.goalie = false
-        state.local.sequence = [{act: "flag", fl: "g" + position}, /*{act: "flag", fl: "fplc"}, {act: "flag", fl: "fcb"}, {act: "flag", fl: "frb"}, {act: "flag", fl: "fc"},*/
+        state.local.sequence = [/*{act: "flag", fl: "g" + position}, {act: "flag", fl: "fplc"}, {act: "flag", fl: "fcb"}, {act: "flag", fl: "frb"}, {act: "flag", fl: "fc"},*/
         {act: "kick", fl: "b", goal: "g" + side}]
         state.local.nextAction = 0
   //      state.local.catch = 0
@@ -85,7 +85,7 @@ class TA {
         }
         if (angle == undefined) return {n: "turn", v: 180}
         if (angle && Math.abs(angle) > 5) return {n: "turn", v: angle}
-        return {n: "dash", v: dist ? dist*2+20 : 100 }
+        return {n: "dash", v: dist ? dist*8+20 : 100 }
       },
       nextAction(taken, state) {
         state.local.nextAction++

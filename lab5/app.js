@@ -16,18 +16,15 @@ function initPlayer(teamName, coordinates, goalie, role) {
   }, 10);
 }
 
-rl.question("Enter team name: ", function (answer) {
-  teamName = answer || "myTeam";
   rl.question("Enter initial coordinates of the player (X must be negative): ", function (answer) {
     coordinates1 = answer || "-15 10";
     rl.close();
   })
-})
 
 
 rl.on('close', async () => {
-  await initPlayer(teamName, coordinates1, false, true);
-  await initPlayer(teamName, "-40 10", true, false);
-  await initPlayer("not_" + teamName, coordinates1, false, true);
-  await initPlayer("not_" + teamName, "-40 10", true, false);
+  await initPlayer("Losers", coordinates1, false, true);
+  //await initPlayer(teamName, "-40 10", true, false);
+  //await initPlayer("not_" + teamName, coordinates1, false, true);
+  await initPlayer("alsoLosers", "-47 0", true, false);
 })
