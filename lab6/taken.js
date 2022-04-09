@@ -1,8 +1,8 @@
 const Flags = require('./flags');
 
 class Taken {
-  constructor() {
-    this.time = 0
+  constructor(id) {
+	this.id = id
     this.pos = null
     this.side = "l"
     this.hear = []
@@ -11,22 +11,23 @@ class Taken {
     this.team = []
     this.goalOwn = null
     this.goal = null
-    this.memories = {
+    /*this.memories = {
       ticks: 3,
       prevTeamOwn: [],
       prevTeam: [],
       prevPos: [],
       prevBall: [],
-    }
+    }*/
     this.flags = []
   }
   setSee(input, team, side) {
     this.side = side
     if (!input) throw "Can't see shit"
-    this.setMemory();
+    //this.setMemory();
     this.flags = this.visibleFlags(input);
     if (this.pos && this.flags.length >= 2) {
       this.ball = this.locateGoal(input, this.flags, "b");
+		//console.log(JSON.stringify(this.ball))
       let oppSide = side == "l" ? "r" : "l";
       this.goal = this.locateGoal(input, this.flags, "g" + oppSide);
       this.goalOwn = this.locateGoal(input, this.flags, "g" + side);
@@ -49,8 +50,9 @@ class Taken {
       who: input[1],
       msg: input[2]
     })
+	if(this.hear.length > 1) this.hear.pop();
   }
-  setMemory(){
+  /*setMemory(){
 	  if(this.memories.prevPos.length >= this.memories.ticks){
 	  	this.memories.prevTeamOwn.pop();
 	  	this.memories.prevTeam.pop();
@@ -62,7 +64,7 @@ class Taken {
 		if(this.pos) this.memories.prevPos.unshift(this.pos);
 	  	if(this.ball) this.memories.prevBall.unshift(this.ball);
 	  //console.log(JSON.stringify(this.memories.prevTeam));
-  }
+  }*/
   visibleFlags(p) {
     let flags = [];
     for (let res of p) {
@@ -73,8 +75,8 @@ class Taken {
             n: f_name,
             x: Flags[f_name].x,
             y: Flags[f_name].y,
-            d: res.p[0],
-            a: res.p[1]
+            dist: res.p[0],
+            angle: res.p[1]
           };
           flags.push(f);
         } catch (e) {
@@ -100,12 +102,13 @@ class Taken {
     for (let i = 1; i < flags.length; i++) {
       if (!this.areOnTheLine(flags[0], this.pos, flags[i])) {
         goalCoordinates = this.locateObject(flags[0], flags[i], goal);
+		//if(goalCoordinates.x == NaN || goalCoordinates.y == NaN || goalCoordinates.x == "NaN" || goalCoordinates.y == "NaN") console.log(JSON.stringify(flags[0])+ JSON.stringify(flags[i])+ JSON.stringify(goal) )
         if (goalCoordinates) return {
           x: goalCoordinates.x,
           y: goalCoordinates.y,
           f: obj,
-          dist: goal.d,
-          angle: goal.a
+          dist: goal.dist,
+          angle: goal.angle
         };
       }
     }
@@ -120,8 +123,8 @@ class Taken {
       if (res.cmd && res.cmd.p && res.cmd.p.length > 0 && res.cmd.p[0] == "p" &&
       res.cmd.p[1] && teamNameCmp((res.cmd.p[1]).slice(1, (res.cmd.p[1]).length -1)) && res.cmd.p[2]) {
         let player = {
-          d: res.p[0],
-          a: res.p[1]
+          dist: res.p[0],
+          angle: res.p[1]
         };
         let playerCoordinates;
 		for (let i = 1; i < flags.length; i++) {
@@ -132,8 +135,8 @@ class Taken {
                 x: Number(playerCoordinates.x),
                 y: Number(playerCoordinates.y),
                 f: res.cmd.p.join(""),
-                dist: player.d,
-                angle: player.a
+                dist: player.dist,
+                angle: player.angle
               });
               break;
             }
@@ -171,21 +174,21 @@ class Taken {
         g2 = f3;
         g3 = f2;
       }
-      y = (g2.y**2 - g1.y**2 + g1.d**2 - g2.d**2) / 2 /(g2.y - g1.y);
-      x = (g1.d**2 - g3.d**2 - g1.x**2 + g3.x**2 -g1.y**2 +g3.y**2 +
+      y = (g2.y**2 - g1.y**2 + g1.dist**2 - g2.dist**2) / 2 /(g2.y - g1.y);
+      x = (g1.dist**2 - g3.dist**2 - g1.x**2 + g3.x**2 -g1.y**2 +g3.y**2 +
         2*y*(g1.y - g3.y)) / 2 / (g3.x - g1.x);
     } else {
       let alpha1 = (f1.y - f2.y) / (f2.x - f1.x);
-      let beta1 = (f2.y**2 - f1.y**2 + f2.x**2 - f1.x**2 + f1.d**2 - f2.d**2) / 2 / (f2.x - f1.x);
+      let beta1 = (f2.y**2 - f1.y**2 + f2.x**2 - f1.x**2 + f1.dist**2 - f2.dist**2) / 2 / (f2.x - f1.x);
       let alpha2 = (f1.y - f3.y) / (f3.x - f1.x);
-      let beta2 = (f3.y**2 - f1.y**2 + f3.x**2 - f1.x**2 + f1.d**2 - f3.d**2) / 2 / (f3.x - f1.x);
+      let beta2 = (f3.y**2 - f1.y**2 + f3.x**2 - f1.x**2 + f1.dist**2 - f3.dist**2) / 2 / (f3.x - f1.x);
       y = (beta1 - beta2) / (alpha2 - alpha1);
       x = alpha1 * y + beta1;
     }
     return { x: x.toFixed(2), y: y.toFixed(2) };
   }
-  calculateDistanceAngle(f, a) {
-    return Math.sqrt(f.d**2 + a.d**2 - 2*f.d*a.d*Math.cos(Math.abs(f.a - a.a) / 180 * Math.PI));
+  calculateDistanceAngle(f, angle) {
+    return Math.sqrt(f.dist**2 + angle.dist**2 - 2*f.dist*angle.dist*Math.cos(Math.abs(f.angle - angle.angle) / 180 * Math.PI));
   }
   calculateDistanceCoords(c1, c2){
   	return Math.sqrt((c1.x - c2.x)**2 + (c1.y - c2.y)**2);
@@ -196,17 +199,17 @@ class Taken {
     let flag1 = {
       x: f1.x,
       y: f1.y,
-      d: da1
+      dist: da1
     }
     let flag2 = {
       x: f2.x,
       y: f2.y,
-      d: da2
+      dist: da2
     }
     let flag3 = {
       x: this.pos.x,
       y: this.pos.y,
-      d: object.d
+      dist: object.dist
     }
     return this.threeFlagCoordinates(flag1, flag2, flag3);
   }
@@ -221,8 +224,8 @@ class Taken {
   	  let v2 = {x: f2.x - this.pos.x, y: f2.y - this.pos.y};
   	  let angle = Math.acos((v1.x*v2.x+v1.y*v2.y)/(Math.sqrt(v1.x**2 + v1.y**2)*Math.sqrt(v2.x**2 + v2.y**2)));
 
-  	  if((angle + f2.a).toFixed(0) == 0) return 180;
-  	  return (angle + f2.a).toFixed(1);
+  	  if((angle + f2.angle).toFixed(0) == 0) return 180;
+  	  return (angle + f2.angle).toFixed(1);
   }
   interceptionPoint() {
     let k1 = (Flags["g"+this.side].y - this.ball.y)/(Flags["g"+this.side].x - this.ball.x)
@@ -250,11 +253,11 @@ class Taken {
 			let ballCoords = {x: this.ball.x, y: this.ball.y};
             playersList.forEach((p) => {
 			 let playerCoords = {x: p.x, y: p.y};
-              dist = calculateDistanceCoords
+              
               if (playerCoords) {
                 distanceList.push({
                   coords: playerCoords,
-                  dist: calculateDistanceCoords(playerCoords, ballCoords)
+                  dist: this.calculateDistanceCoords(playerCoords, ballCoords)
                 })
               }
             })

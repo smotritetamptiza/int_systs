@@ -2,7 +2,7 @@ const Agent = require('./agent'); //importing Agent
 const readline = require('readline');
 
 const VERSION = 7; // server version
-let teamName, coordinates1;
+
 const rl = readline.createInterface({
   input: process.stdin,
   output: process.stdout
@@ -16,16 +16,14 @@ function initPlayer(teamName, coordinates, goalie, role) {
   }, 10);
 }
 
-rl.question("Enter team name: ", function (answer) {
-  teamName = answer || "myTeam";
-  rl.question("Enter initial coordinates of the player (X must be negative): ", function (answer) {
-    coordinates1 = answer || "-15 10";
-    rl.close();
-  })
-})
 
-
-rl.on('close', async () => {
-  await initPlayer(teamName, coordinates1, false, true);
-  await initPlayer("not_" + teamName, "-30 10", true, false);
-})
+setTimeout(() =>{
+	setTimeout(() => { initPlayer("A", "-20 -15", false, true)}, 100)
+	//setTimeout(() => {  initPlayer("A", "-20 5", false, true)}, 100)
+	setTimeout(() => {  initPlayer("A", "-45 0", true, false)}, 100)
+	
+	//setTimeout(() => {  initPlayer("B", "-20 -15", false, true)}, 100)
+	setTimeout(() => {  initPlayer("B", "-20 5", false, true)}, 100)
+	setTimeout(() => {  initPlayer("B", "-45 0", true, false)}, 100)
+}, 100)
+console.log("DON'T FORGET TO CLOSE ME")

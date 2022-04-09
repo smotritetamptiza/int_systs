@@ -3,9 +3,14 @@ const readline = require('readline');
 const goalieTA = require('./goalieTA');
 const scoreTA = require('./scoreTA');
 const ManagerTA = require('./managerTA');
-const CtrlLow = require('./controllerLow');
-const CtrlMiddle = require('./controllerMiddle');
-const CtrlHigh = require('./controllerHigh');
+
+const CtrlLowGoalie = require('./controllerLowGoalie');
+const CtrlMiddleGoalie = require('./controllerMiddleGoalie');
+const CtrlHighGoalie = require('./controllerHighGoalie');
+
+const CtrlLowScore = require('./controllerLowScore');
+const CtrlMiddleScore = require('./controllerMiddleScore');
+const CtrlHighScore = require('./controllerHighScore');
 const Taken = require('./taken');
 
 const Flags = require('./flags');
@@ -21,9 +26,18 @@ class Agent {
     this.coordinates;
     this.vector;
     this.lastact;
-  	this.goalie = goalie;
-    this.taken = new Taken();
-    this.controller = CtrlLow;
+  	//this.goalie = goalie;
+    this.taken = new Taken(this.id);
+    
+    if(goalie){
+      this.controller = CtrlLowGoalie;
+      this.controllers = [CtrlMiddleGoalie, CtrlHighGoalie];
+    }
+    else{
+      this.controller = CtrlLowScore;
+      this.controllers = [CtrlMiddleScore, CtrlHighScore];
+    }
+   
     
   }
   msgGot(msg) {
@@ -80,7 +94,7 @@ class Agent {
   		this.taken.setLocation(this.coordinates);
   	  this.taken.setSee(p, this.teamName, this.position);
       
-      if (this.run) this.act = this.controller.execute(this.taken, [CtrlMiddle, CtrlHigh]);
+      if (this.run) this.act = this.controller.execute(this.taken, this.controllers);
       //if (this.run) this.act = this.managerTA.getAction(p, this.TA, this.teamName, this.position);
     }
 
