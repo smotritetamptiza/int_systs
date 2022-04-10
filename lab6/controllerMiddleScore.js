@@ -1,11 +1,13 @@
-const CTRL_MIDDLE = {
-  action: "return",
+class CTRL_MIDDLE {
+	constructor(){
+  		this.action = "return"
+	}
   execute(taken, controllers) {
     const next = controllers[0]
 	
     switch (this.action) {
       case "return":
-        taken.cmd = this.actionReturnArrack(taken)
+        taken.cmd = this.positionYourself(taken)
         break
       case "seekBall":
         taken.cmd = this.seekBall(taken)
@@ -15,47 +17,43 @@ const CTRL_MIDDLE = {
     taken.action = this.action
     if(next) { 
       const command = next.execute(taken, controllers.slice(1))
-	  //console.log(JSON.stringify(command))
       if(command) return command;
       if(taken.newAction) this.action = taken.newAction
       return taken.cmd
     }
-  },
-  actionReturnArrack(taken) { // Возврат к своим воротам
-    let goal = ''
-    if (taken.id === 1) {
-      goal = (taken.side === 'l') ? 'fprc' : 'fplc'
-    } else if (taken.id === 2) {
-      goal = (taken.side === 'l') ? 'fprt' : 'fplb'
-    } else if (taken.id === 3){
-      goal = (taken.side === 'l') ? 'fprb' : 'fplt'
-    } else if (taken.id < 6) {
-      goal = 'fc'
-    } else if (taken.id === 6) {
-      goal = 'fct'
-    } else if (taken.id === 7) {
-      goal = 'fcb'
-    } else if (taken.id === 8) {
-      goal = (taken.side === 'l') ? 'fplt' : 'fprb'
-    } else if (taken.id === 9) {
-      goal = (taken.side === 'l') ? 'fplc' : 'fprc'
-    } else if (taken.id === 10) {
-      goal = (taken.side === 'l') ? 'fplb' : 'fprt'
-    }
-    if(!taken.flags[goal]) return {n: "turn", v: 60}
-    if(Math.abs(taken.flags[goal].angle) > 10)
-      return {n: "turn", v: taken.flags[goal].angle}
-    if(taken.flags[goal].dist > 3)
-      return {n: "dash", v: 80}
+  }
+	
+  positionYourself(taken) {
+    let side = (taken.side == "l" ? "r" : "l")
+	let dist = [taken.calculateDistanceToFlag(taken.pos, "fp" + side + "t"), taken.calculateDistanceToFlag(taken.pos, "fp" + side + "c"), taken.calculateDistanceToFlag(taken.pos, "fp" + side + "b")]
+	
+	let goal = "fp" + side + "b"
+	if(dist[0] <= dist[1]) goal = "fp" + side + "t"
+	else if(dist[1] < dist[2]) goal = "fp" + side + "c"	
+	  
+	let goa = taken.flags.filter(fl => fl.n == goal)  
+    if(goa.length < 1) {
+		return {n: "turn", v: 60}
+	}
+    if(Math.abs(goa[0].angle) > 10)
+      return {n: "turn", v: goa[0].angle}
+	  
+    if(goa[0].dist > 5)
+      return {n: "dash", v: 100}
+	  
     this.action = "seekBall"
-    return {n: "turn", v: 180}
-  },
-  seekBall(taken) { // Осмотр поля
-    if (!taken.ball)
+    return this.seekBall(taken)
+  }
+	
+  seekBall(taken) { 
+    if (!taken.ball){
       return {n: "turn", v: 45}
-    else {
+	}
+	  //console.log(taken.id+ taken.side + " " + taken.ball.angle)
+    if(Math.abs(taken.ball.angle) > 5){
       return {n: "turn", v: taken.ball.angle}
     }
-  },
+	  return {n: "turn", v: 0}
+  }
 }
 module.exports = CTRL_MIDDLE

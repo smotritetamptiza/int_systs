@@ -1,13 +1,13 @@
 
-const CTRL_LOW = {
+class CTRL_LOW {
   execute(taken, controllers) {
-    const next = controllers[0] // Следующий уровень
-    if(taken.ball && taken.ball.dist < 0.5) // Мяч рядом
+    const next = controllers[0] 
+    if(taken.ball && taken.ball.dist < 1) 
       taken.canKick = true
     else
       taken.canKick = false
 
-    if(next) // Вызов следующего уровня
+    if(next) 
       return next.execute(taken, controllers.slice(1))
   }
 }

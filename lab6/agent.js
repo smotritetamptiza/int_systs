@@ -34,8 +34,8 @@ class Agent {
       this.controllers = [new CtrlMiddleGoalie(), new CtrlHighGoalie()];
     }
     else{
-      this.controller = CtrlLowScore;
-      this.controllers = [CtrlMiddleScore, CtrlHighScore];
+      this.controller = new CtrlLowScore();
+      this.controllers = [new CtrlMiddleScore(), new CtrlHighScore()];
     }
    
     
@@ -93,7 +93,7 @@ class Agent {
       
       this.locateSelf(p);
   		this.taken.setLocation(this.coordinates);
-  	  this.taken.setSee(p, this.teamName, this.position);
+  	  this.taken.setSee(p, this.teamName, this.position, this.id);
       
       if (this.run) this.act = this.controller.execute(this.taken, this.controllers);
       //if (this.run) this.act = this.managerTA.getAction(p, this.TA, this.teamName, this.position);

@@ -21,14 +21,15 @@ class Taken {
     }*/
     this.flags = []
   }
-  setSee(input, team, side) {
+  setSee(input, team, side, id) {
+	  this.id = id
     this.side = side
     if (!input) throw "Can't see shit"
     //this.setMemory();
     this.flags = this.visibleFlags(input);
     if (this.pos && this.flags.length >= 2) {
       this.ball = this.locateGoal(input, this.flags, "b");
-		//console.log(JSON.stringify(this.ball))
+	
       let oppSide = side == "l" ? "r" : "l";
       this.goal = this.locateGoal(input, this.flags, "g" + oppSide);
       this.goalOwn = this.locateGoal(input, this.flags, "g" + side);
@@ -247,6 +248,31 @@ class Taken {
     }
 
   }
+  closestToFlag(myTeam, f_name){
+  	if (Flags[f_name]) {
+		const distanceList = []
+		let playersList = []
+		if (myTeam) playersList = this.teamOwn
+		else playersList = this.team
+		let flagCoords = {x: Flags[f_name].x, y: Flags[f_name].y};
+		playersList.forEach((p) => {
+		 let playerCoords = {x: p.x, y: p.y};
+		  if (playerCoords) {
+			distanceList.push({
+			  player: p,	
+			  coords: playerCoords,
+			  dist: this.calculateDistanceCoords(playerCoords, flagCoords)
+			})
+		  }
+		})
+
+		distanceList.sort((dist1, dist2) => {
+		  return dist1.dist - dist2.dist
+		})
+		return  distanceList 
+    }
+    return []
+  }		
   closestToBall(myTeam) {
         if (this.ball) {
             
