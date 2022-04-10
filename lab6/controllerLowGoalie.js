@@ -1,13 +1,8 @@
 //const Taken = require('./taken')
-const CTRL_LOW = {
+class CTRL_LOW {
 	execute(taken, controllers){
 		const next = controllers[0] // next level
 		
-		
-		/*if (state.local.catch < 3) {
-              state.local.catch++
-              return {n: "catch", v: angle}
-            } else state.local.catch = 0*/
 		if(taken.ball && taken.ball.dist < 1)
 			taken.canCatch = true
 		else taken.canCatch = false

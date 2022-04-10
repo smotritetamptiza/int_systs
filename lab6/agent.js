@@ -30,8 +30,8 @@ class Agent {
     this.taken = new Taken(this.id);
     
     if(goalie){
-      this.controller = CtrlLowGoalie;
-      this.controllers = [CtrlMiddleGoalie, CtrlHighGoalie];
+      this.controller = new CtrlLowGoalie();
+      this.controllers = [new CtrlMiddleGoalie(), new CtrlHighGoalie()];
     }
     else{
       this.controller = CtrlLowScore;
@@ -80,6 +80,7 @@ class Agent {
         }
         if (p[2].startsWith("goal_")) {
           this.run = false;
+          this.taken.isGoal = true
           this.socketSend('move', this.initialCoordinates);
           //this.managerTA.initTA(this.TA);
         }

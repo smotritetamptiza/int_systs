@@ -2,6 +2,7 @@ const Flags = require('./flags');
 
 class Taken {
   constructor(id) {
+	this.isGoal = false
 	this.id = id
     this.pos = null
     this.side = "l"
@@ -192,6 +193,9 @@ class Taken {
   }
   calculateDistanceCoords(c1, c2){
   	return Math.sqrt((c1.x - c2.x)**2 + (c1.y - c2.y)**2);
+  }
+  calculateDistanceToFlag(c1, f_name){
+  	return Math.sqrt((c1.x - Flags[f_name].x)**2 + (c1.y - Flags[f_name].y)**2);
   }
   locateObject(f1, f2, object) {
     let da1 = this.calculateDistanceAngle(f1, object);
