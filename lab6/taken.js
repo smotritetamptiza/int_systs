@@ -12,20 +12,20 @@ class Taken {
     this.team = []
     this.goalOwn = null
     this.goal = null
-    /*this.memories = {
+    this.memories = {
       ticks: 3,
       prevTeamOwn: [],
       prevTeam: [],
       prevPos: [],
       prevBall: [],
-    }*/
+    }
     this.flags = []
   }
   setSee(input, team, side, id) {
 	  this.id = id
     this.side = side
     if (!input) throw "Can't see shit"
-    //this.setMemory();
+    this.setMemory();
     this.flags = this.visibleFlags(input);
     if (this.pos && this.flags.length >= 2) {
       this.ball = this.locateGoal(input, this.flags, "b");
@@ -54,7 +54,7 @@ class Taken {
     })
 	if(this.hear.length > 1) this.hear.pop();
   }
-  /*setMemory(){
+  setMemory(){
 	  if(this.memories.prevPos.length >= this.memories.ticks){
 	  	this.memories.prevTeamOwn.pop();
 	  	this.memories.prevTeam.pop();
@@ -66,7 +66,7 @@ class Taken {
 		if(this.pos) this.memories.prevPos.unshift(this.pos);
 	  	if(this.ball) this.memories.prevBall.unshift(this.ball);
 	  //console.log(JSON.stringify(this.memories.prevTeam));
-  }*/
+  }
   visibleFlags(p) {
     let flags = [];
     for (let res of p) {
