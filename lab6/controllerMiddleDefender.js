@@ -74,7 +74,8 @@ class CTRL_MIDDLE {
 		}
 
 		this.action = "rotateCenter"
-		return {n: "turn", v: 180}
+		
+		//return {n: "turn", v: 180}
 	}
 	rotateCenter(taken){
 		let fc = taken.flags.filter(fl => fl.n == "fc")
