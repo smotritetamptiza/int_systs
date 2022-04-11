@@ -1,15 +1,9 @@
 const Agent = require('./agent'); //importing Agent
-const readline = require('readline');
 
 const VERSION = 7; // server version
 
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
-});
-
 function initPlayer(teamName, coordinates, goalie, role) {
-  let agent = new Agent(teamName, coordinates, goalie, role);
+  let agent = new Agent(teamName, coordinates, role);
   require('./socket')(agent, teamName, VERSION, goalie); // socket configuration
   setTimeout(function () {
     agent.socketSend('move', coordinates); // placing player on the field
@@ -18,12 +12,18 @@ function initPlayer(teamName, coordinates, goalie, role) {
 
 
 setTimeout(() =>{
-	setTimeout(() => { initPlayer("A", "-5 -15", false, true)}, 100)
-	setTimeout(() => {  initPlayer("A", "-20 0", false, true)}, 100)
-	setTimeout(() => {  initPlayer("A", "-45 0", true, false)}, 100)
-	
-	setTimeout(() => {  initPlayer("B", "-20 -15", false, true)}, 100)
-	setTimeout(() => {  initPlayer("B", "-20 5", false, true)}, 100)
-	setTimeout(() => {  initPlayer("B", "-45 0", true, false)}, 100)
+	setTimeout(() => { initPlayer("A", "-5 -15", false, 'forward')}, 100)
+	setTimeout(() => {  initPlayer("A", "-20 0", false, 'forward')}, 100)
+  setTimeout(() => {  initPlayer("A", "-30 -15", false, 'defender')}, 100)
+  setTimeout(() => {  initPlayer("A", "-30 0", false, 'defender')}, 100)
+  setTimeout(() => {  initPlayer("A", "-30 15", false, 'defender')}, 100)
+	setTimeout(() => {  initPlayer("A", "-45 0", true, 'goalie')}, 100)
+
+	setTimeout(() => {  initPlayer("B", "-20 -15", false, 'forward')}, 100)
+	setTimeout(() => {  initPlayer("B", "-20 5", false, 'forward')}, 100)
+  setTimeout(() => {  initPlayer("B", "-30 -15", false, 'defender')}, 100)
+  setTimeout(() => {  initPlayer("B", "-30 0", false, 'defender')}, 100)
+  setTimeout(() => {  initPlayer("B", "-30 15", false, 'defender')}, 100)
+	setTimeout(() => {  initPlayer("B", "-45 0", true, 'goalie')}, 100)
 }, 100)
 console.log("DON'T FORGET TO CLOSE ME")

@@ -11,13 +11,18 @@ const CtrlHighGoalie = require('./controllerHighGoalie');
 const CtrlLowScore = require('./controllerLowScore');
 const CtrlMiddleScore = require('./controllerMiddleScore');
 const CtrlHighScore = require('./controllerHighScore');
+
+const CtrlLowDefender = require('./controllerLowDefender');
+const CtrlMiddleDefender = require('./controllerMiddleDefender');
+const CtrlHighDefender = require('./controllerHighDefender');
+
 const Taken = require('./taken');
 
 const Flags = require('./flags');
 
 
 class Agent {
-  constructor(teamName, initialCoordinates, goalie, role) {
+  constructor(teamName, initialCoordinates, role) {
     this.teamName = teamName;
     this.initialCoordinates = initialCoordinates;
     this.position = 'l';
@@ -28,17 +33,32 @@ class Agent {
     this.lastact;
   	//this.goalie = goalie;
     this.taken = new Taken(this.id);
-    
-    if(goalie){
+
+    switch (role) {
+      case 'goalie':
+        this.controller = new CtrlLowGoalie();
+        this.controllers = [new CtrlMiddleGoalie(), new CtrlHighGoalie()];
+        break;
+      case 'defender':
+        this.controller = new CtrlLowDefender();
+        this.controllers = [new CtrlMiddleDefender(), new CtrlHighDefender()];
+        break;
+      default:
+        this.controller = new CtrlLowScore();
+        this.controllers = [new CtrlMiddleScore(), new CtrlHighScore()];
+        break;
+    }
+
+    /*if(goalie){
       this.controller = new CtrlLowGoalie();
       this.controllers = [new CtrlMiddleGoalie(), new CtrlHighGoalie()];
     }
     else{
       this.controller = new CtrlLowScore();
       this.controllers = [new CtrlMiddleScore(), new CtrlHighScore()];
-    }
-   
-    
+    }*/
+
+
   }
   msgGot(msg) {
     let data = msg.toString('utf8');
@@ -63,7 +83,7 @@ class Agent {
     //this.managerTA.initTA(this.TA);
   }
   analyzeEnv(msg, cmd, p) {
-    
+
     /*
     if (cmd === 'see' && this.run) {
       if (this.id < 11) {
@@ -85,24 +105,24 @@ class Agent {
           //this.managerTA.initTA(this.TA);
         }
       }
-      
+
     }
-    
-    
+
+
     if (cmd == 'see') {
-      
+
       this.locateSelf(p);
   		this.taken.setLocation(this.coordinates);
   	  this.taken.setSee(p, this.teamName, this.position, this.id);
-      
+
       if (this.run) this.act = this.controller.execute(this.taken, this.controllers);
       //if (this.run) this.act = this.managerTA.getAction(p, this.TA, this.teamName, this.position);
     }
 
-   
-    
-    
-  } 
+
+
+
+  }
   sendCmd() {
     if (this.run) {
       if (this.act) {
