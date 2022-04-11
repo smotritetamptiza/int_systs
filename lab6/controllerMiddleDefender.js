@@ -14,7 +14,8 @@ class CTRL_MIDDLE {
 		let fptDist = taken.calculateDistanceToFlag(taken.pos, `fp${taken.side}t`)
 		let fpbDist = taken.calculateDistanceToFlag(taken.pos, `fp${taken.side}b`)
 
-		if(fptDist > 30 && fpbDist > 30 && (!taken.ball || (taken.side == "l" ? taken.ball.x >= 10 : taken.ball.x <= -10)))
+		if(fptDist > 20 && fpbDist > 20 && (!taken.ball ||
+			(taken.side == "l" ? taken.ball.x >= 10 : taken.ball.x <= -10)))
 			this.action = "return"
 
 		switch (this.action){
@@ -108,7 +109,6 @@ class CTRL_MIDDLE {
 	}*/
 	seekBall(taken) {
     if (!taken.ball){
-			this.action = "rotateCenter"
       return {n: "turn", v: taken.calculateAngle(`fc`)}
 		}
 	  //console.log(taken.id+ taken.side + " " + taken.ball.angle)
