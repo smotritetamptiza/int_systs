@@ -12,31 +12,30 @@ function initPlayer(teamName, coordinates, goalie, role) {
 
 
 setTimeout(() =>{
-	setTimeout(() => { initPlayer("A", "-5 -15", false, 'forward')}, 100)
-	setTimeout(() => {  initPlayer("A", "-20 -10", false, 'forward')}, 100)
-	setTimeout(() => { initPlayer("A", "-5 15", false, 'forward')}, 100)
-	setTimeout(() => {  initPlayer("A", "-20 10", false, 'forward')}, 100)
-	setTimeout(() => { initPlayer("A", "-15 0", false, 'forward')}, 100)
-	
-  	setTimeout(() => {  initPlayer("A", "-42 -17", false, 'defender')}, 100)
-  	setTimeout(() => {  initPlayer("A", "-37 -7", false, 'defender')}, 100)
-	setTimeout(() => {  initPlayer("A", "-42 17", false, 'defender')}, 100)
-  	setTimeout(() => {  initPlayer("A", "-37 7", false, 'defender')}, 100)
-  	setTimeout(() => {  initPlayer("A", "-32 0", false, 'defender')}, 100)
-	
+
+	setTimeout(() => { initPlayer("A", "-10 -10", false, 'forward')}, 100)
+	setTimeout(() => {  initPlayer("A", "-10 10", false, 'forward')}, 100)
+  setTimeout(() => {  initPlayer("A", "-20 -20", false, 'forward')}, 100)
+  setTimeout(() => {  initPlayer("A", "-20 20", false, 'forward')}, 100)
+  setTimeout(() => {  initPlayer("A", "-10 0", false, 'forward')}, 100)
+  setTimeout(() => {  initPlayer("A", "-25 0", false, 'defender')}, 100)
+  setTimeout(() => {  initPlayer("A", "-30 -25", false, 'defender')}, 100)
+  setTimeout(() => {  initPlayer("A", "-40 -10", false, 'defender')}, 100)
+  setTimeout(() => {  initPlayer("A", "-30 25", false, 'defender')}, 100)
+  setTimeout(() => {  initPlayer("A", "-40 10", false, 'defender')}, 100)
 	setTimeout(() => {  initPlayer("A", "-45 0", true, 'goalie')}, 100)
 
-	setTimeout(() => { initPlayer("B", "-5 -15", false, 'forward')}, 100)
-	setTimeout(() => {  initPlayer("B", "-20 -10", false, 'forward')}, 100)
-	setTimeout(() => { initPlayer("B", "-5 15", false, 'forward')}, 100)
-	setTimeout(() => {  initPlayer("B", "-20 10", false, 'forward')}, 100)
-	setTimeout(() => { initPlayer("B", "-15 0", false, 'forward')}, 100)
-	
-  	setTimeout(() => {  initPlayer("B", "-42 -17", false, 'defender')}, 100)
-  	setTimeout(() => {  initPlayer("B", "-37 -7", false, 'defender')}, 100)
-	setTimeout(() => {  initPlayer("B", "-42 17", false, 'defender')}, 100)
-  	setTimeout(() => {  initPlayer("B", "-37 7", false, 'defender')}, 100)
-  	setTimeout(() => {  initPlayer("B", "-32 0", false, 'defender')}, 100)
+	setTimeout(() => {  initPlayer("B", "-10 -10", false, 'forward')}, 100)
+	setTimeout(() => {  initPlayer("B", "-10 10", false, 'forward')}, 100)
+  setTimeout(() => {  initPlayer("B", "-20 -20", false, 'forward')}, 100)
+  setTimeout(() => {  initPlayer("B", "-20 20", false, 'forward')}, 100)
+  setTimeout(() => {  initPlayer("B", "-10 0", false, 'forward')}, 100)
+  setTimeout(() => {  initPlayer("B", "-25 0", false, 'defender')}, 100)
+  setTimeout(() => {  initPlayer("B", "-30 -25", false, 'defender')}, 100)
+  setTimeout(() => {  initPlayer("B", "-40 -10", false, 'defender')}, 100)
+  setTimeout(() => {  initPlayer("B", "-30 25", false, 'defender')}, 100)
+  setTimeout(() => {  initPlayer("B", "-40 10", false, 'defender')}, 100)
+
 	setTimeout(() => {  initPlayer("B", "-45 0", true, 'goalie')}, 100)
 }, 100)
 console.log("DON'T FORGET TO CLOSE ME")

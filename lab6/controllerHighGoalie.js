@@ -10,7 +10,8 @@ class CTRL_HIGH {
 		const defend = this.defendGoal(taken)
 		if(defend) return defend
 
-		if(this.last == "defend") taken.newAction = "return"
+		if(this.last == "defend")
+				taken.newAction = "return"
 		else taken.newAction = null
 
 		this.last = "previous"
@@ -25,7 +26,7 @@ class CTRL_HIGH {
 			this.last = "kick"
 			if(taken.goal)
 				return {n: "kick", v: 100, a: taken.goal.angle} //SMART KICK!
-			return {n: "kick", v: 10, a: 45}
+			return {n: "kick", v: 50, a: 60}
 		}
 
 	}
@@ -33,7 +34,7 @@ class CTRL_HIGH {
 		this.last = "kick"
 		if(taken.goal)
 			return {n: "kick", v: 100, a: taken.goal.angle} //SMART KICK!
-		return {n: "kick", v: 10, a: 45}
+		return {n: "kick", v: 50, a: 60}
 
 	}
 	defendGoal(taken){
